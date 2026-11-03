@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ProjectStatus } from './projectStatus';
+import type { Readiness } from './readiness';
 import type { TagRef } from './tagRef';
 
 export interface ProjectSummary {
@@ -15,4 +16,5 @@ export interface ProjectSummary {
   in_inbox: boolean;
   tags: TagRef[];
   last_touched_at: string;
+  readiness: Readiness;
 }

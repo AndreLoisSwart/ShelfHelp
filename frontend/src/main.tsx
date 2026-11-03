@@ -19,8 +19,12 @@ const queryClient: QueryClient = new QueryClient({
   },
   mutationCache: new MutationCache({
     // The data is small, so refetch everything after any change instead of
-    // tracking which queries each change affects.
-    onSuccess: () => queryClient.invalidateQueries(),
+    // tracking which queries each change affects. Not awaited: TanStack Query would
+    // wait for the refetch before running per-call callbacks, and by then the
+    // component that made the call may be gone (e.g. a row that got removed).
+    onSuccess: () => {
+      void queryClient.invalidateQueries()
+    },
     onError: (error) => toast.error(errorMessage(error)),
   }),
 })

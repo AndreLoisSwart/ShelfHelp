@@ -70,7 +70,8 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 │  │     ├─ links/
 │  │     ├─ attachments/
 │  │     ├─ inbox/
-│  │     └─ search/
+│  │     ├─ search/
+│  │     └─ shopping/       # computed shopping list, no tables
 │  ├─ migrations/           # Alembic
 │  ├─ scripts/              # dev tools, e.g. the Ingress stand-in proxy
 │  └─ tests/

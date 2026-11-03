@@ -8,6 +8,7 @@ from app.core.frontend import mount_frontend
 from app.modules.items import router as items
 from app.modules.locations import router as locations
 from app.modules.projects import router as projects
+from app.modules.shopping import router as shopping
 from app.modules.tags import router as tags
 
 
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
     api.include_router(items.router)
     api.include_router(projects.router)
     api.include_router(tags.router)
+    api.include_router(shopping.router)
 
     app.include_router(api)
     register_error_handlers(app)

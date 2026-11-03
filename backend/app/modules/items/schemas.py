@@ -4,11 +4,14 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.core.schemas import Name, reject_null
 from app.modules.items.models import ItemStatus
+from app.modules.projects.models import ProjectStatus, Requirement
 from app.modules.tags.schemas import TagRef
 
 
 class ItemRef(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True, json_schema_serialization_defaults_required=True
+    )
 
     id: int
     name: str
@@ -22,10 +25,23 @@ class ItemSummary(ItemRef):
     tags: list[TagRef]
 
 
+class ProjectRef(BaseModel):
+    id: int
+    name: str
+    status: ProjectStatus
+
+
+class ItemProjectOut(BaseModel):
+    project: ProjectRef
+    requirement: Requirement
+    note: str
+
+
 class ItemDetail(ItemSummary):
     description: str
     parent: ItemRef | None
     children: list[ItemSummary]
+    projects: list[ItemProjectOut] = []
     created_at: datetime
     updated_at: datetime
 

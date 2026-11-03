@@ -1,10 +1,18 @@
-from sqlalchemy import select
+from collections import defaultdict
+
+from sqlalchemy import case, func, select, update
 from sqlalchemy.orm import Session
 
 from app.core.db import utcnow
 from app.core.errors import NotFoundError
-from app.modules.projects.models import Project, ProjectStatus
-from app.modules.projects.schemas import ProjectCreate, ProjectUpdate
+from app.modules.items.models import Item, ItemStatus
+from app.modules.projects.models import Project, ProjectItem, ProjectStatus, Requirement
+from app.modules.projects.schemas import (
+    ProjectCreate,
+    ProjectItemLink,
+    ProjectUpdate,
+    Readiness,
+)
 from app.modules.tags import service as tags
 from app.modules.tags.models import Tag
 
@@ -20,6 +28,35 @@ def touch(project: Project) -> None:
     """Marks the project as worked on. Call whenever it or anything attached to it changes:
     the project itself, its notes, item links, links or attachments."""
     project.last_touched_at = utcnow()
+
+
+def touch_projects_using(session: Session, item_id: int) -> None:
+    """Touches every project the item is linked to, e.g. before the item is deleted."""
+    linked = select(ProjectItem.project_id).where(ProjectItem.item_id == item_id)
+    session.execute(update(Project).where(Project.id.in_(linked)).values(last_touched_at=utcnow()))
+
+
+# Readiness counts an item as on hand while it is low: it's there, just running out.
+ON_HAND = (ItemStatus.HAVE, ItemStatus.LOW)
+
+
+def readiness(session: Session, project_ids: list[int]) -> dict[int, Readiness]:
+    """Computed on every read, never stored."""
+    on_hand = func.sum(case((Item.status.in_(ON_HAND), 1), else_=0))
+    rows = session.execute(
+        select(ProjectItem.project_id, ProjectItem.requirement, func.count(), on_hand)
+        .join(Item)
+        .where(ProjectItem.project_id.in_(project_ids))
+        .group_by(ProjectItem.project_id, ProjectItem.requirement)
+    )
+    result: dict[int, Readiness] = defaultdict(Readiness)
+    for project_id, requirement, total, ready in rows:
+        counts = result[project_id]
+        if requirement == Requirement.REQUIRED:
+            counts.required, counts.ready = total, ready
+        else:
+            counts.nice_to_have, counts.nice_ready = total, ready
+    return result
 
 
 def list_projects(
@@ -66,4 +103,43 @@ def update_project(session: Session, project_id: int, data: ProjectUpdate) -> Pr
 
 def delete_project(session: Session, project_id: int) -> None:
     session.delete(get_project(session, project_id))
+    session.commit()
+
+
+def list_project_items(session: Session, project_id: int) -> list[ProjectItem]:
+    get_project(session, project_id)
+    query = (
+        select(ProjectItem)
+        .join(Item)
+        .where(ProjectItem.project_id == project_id)
+        # Required first, then by name.
+        .order_by(ProjectItem.requirement != Requirement.REQUIRED, func.lower(Item.name))
+    )
+    return list(session.scalars(query))
+
+
+def link_item(
+    session: Session, project_id: int, item_id: int, data: ProjectItemLink
+) -> ProjectItem:
+    project = get_project(session, project_id)
+    if session.get(Item, item_id) is None:
+        raise NotFoundError(f"Item {item_id} not found")
+    link = session.get(ProjectItem, (project_id, item_id))
+    if link is None:
+        link = ProjectItem(project_id=project_id, item_id=item_id)
+        session.add(link)
+    link.requirement = data.requirement
+    link.note = data.note.strip()
+    touch(project)
+    session.commit()
+    return link
+
+
+def unlink_item(session: Session, project_id: int, item_id: int) -> None:
+    project = get_project(session, project_id)
+    link = session.get(ProjectItem, (project_id, item_id))
+    if link is None:
+        raise NotFoundError(f"Item {item_id} isn't linked to this project")
+    session.delete(link)
+    touch(project)
     session.commit()

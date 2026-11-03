@@ -7,7 +7,9 @@
   "paths": {
     "/api/health": {
       "get": {
-        "tags": ["health"],
+        "tags": [
+          "health"
+        ],
         "summary": "Get Health",
         "operationId": "get_health",
         "responses": {
@@ -26,7 +28,9 @@
     },
     "/api/locations": {
       "get": {
-        "tags": ["locations"],
+        "tags": [
+          "locations"
+        ],
         "summary": "List Locations",
         "operationId": "list_locations",
         "responses": {
@@ -47,7 +51,9 @@
         }
       },
       "post": {
-        "tags": ["locations"],
+        "tags": [
+          "locations"
+        ],
         "summary": "Create Location",
         "operationId": "create_location",
         "requestBody": {
@@ -86,7 +92,9 @@
     },
     "/api/locations/{location_id}": {
       "patch": {
-        "tags": ["locations"],
+        "tags": [
+          "locations"
+        ],
         "summary": "Update Location",
         "operationId": "update_location",
         "parameters": [
@@ -134,7 +142,9 @@
         }
       },
       "delete": {
-        "tags": ["locations"],
+        "tags": [
+          "locations"
+        ],
         "summary": "Delete Location",
         "operationId": "delete_location",
         "parameters": [
@@ -167,7 +177,9 @@
     },
     "/api/items": {
       "get": {
-        "tags": ["items"],
+        "tags": [
+          "items"
+        ],
         "summary": "List Items",
         "description": "location_id includes sub-locations. Several status or tag_id values match any of them.",
         "operationId": "list_items",
@@ -255,7 +267,9 @@
         }
       },
       "post": {
-        "tags": ["items"],
+        "tags": [
+          "items"
+        ],
         "summary": "Create Item",
         "operationId": "create_item",
         "requestBody": {
@@ -294,7 +308,9 @@
     },
     "/api/items/{item_id}": {
       "get": {
-        "tags": ["items"],
+        "tags": [
+          "items"
+        ],
         "summary": "Get Item",
         "operationId": "get_item",
         "parameters": [
@@ -332,7 +348,9 @@
         }
       },
       "patch": {
-        "tags": ["items"],
+        "tags": [
+          "items"
+        ],
         "summary": "Update Item",
         "operationId": "update_item",
         "parameters": [
@@ -380,7 +398,9 @@
         }
       },
       "delete": {
-        "tags": ["items"],
+        "tags": [
+          "items"
+        ],
         "summary": "Delete Item",
         "operationId": "delete_item",
         "parameters": [
@@ -413,7 +433,9 @@
     },
     "/api/projects": {
       "get": {
-        "tags": ["projects"],
+        "tags": [
+          "projects"
+        ],
         "summary": "List Projects",
         "description": "Most recently touched first. Several status or tag_id values match any of them.",
         "operationId": "list_projects",
@@ -485,7 +507,9 @@
         }
       },
       "post": {
-        "tags": ["projects"],
+        "tags": [
+          "projects"
+        ],
         "summary": "Create Project",
         "operationId": "create_project",
         "requestBody": {
@@ -524,7 +548,9 @@
     },
     "/api/projects/{project_id}": {
       "get": {
-        "tags": ["projects"],
+        "tags": [
+          "projects"
+        ],
         "summary": "Get Project",
         "operationId": "get_project",
         "parameters": [
@@ -562,7 +588,9 @@
         }
       },
       "patch": {
-        "tags": ["projects"],
+        "tags": [
+          "projects"
+        ],
         "summary": "Update Project",
         "operationId": "update_project",
         "parameters": [
@@ -610,7 +638,9 @@
         }
       },
       "delete": {
-        "tags": ["projects"],
+        "tags": [
+          "projects"
+        ],
         "summary": "Delete Project",
         "operationId": "delete_project",
         "parameters": [
@@ -641,9 +671,162 @@
         }
       }
     },
+    "/api/projects/{project_id}/items": {
+      "get": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "List Project Items",
+        "description": "Required items first, then by name.",
+        "operationId": "list_project_items",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectItemOut"
+                  },
+                  "title": "Response List Project Items"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{project_id}/items/{item_id}": {
+      "put": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Link Project Item",
+        "description": "Links the item, or updates its requirement and note if it's already linked.",
+        "operationId": "link_project_item",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectItemLink"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectItemOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "projects"
+        ],
+        "summary": "Unlink Project Item",
+        "operationId": "unlink_project_item",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tags": {
       "get": {
-        "tags": ["tags"],
+        "tags": [
+          "tags"
+        ],
         "summary": "List Tags",
         "operationId": "list_tags",
         "responses": {
@@ -664,7 +847,9 @@
         }
       },
       "post": {
-        "tags": ["tags"],
+        "tags": [
+          "tags"
+        ],
         "summary": "Create Tag",
         "operationId": "create_tag",
         "requestBody": {
@@ -703,7 +888,9 @@
     },
     "/api/tags/{tag_id}": {
       "patch": {
-        "tags": ["tags"],
+        "tags": [
+          "tags"
+        ],
         "summary": "Update Tag",
         "operationId": "update_tag",
         "parameters": [
@@ -751,7 +938,9 @@
         }
       },
       "delete": {
-        "tags": ["tags"],
+        "tags": [
+          "tags"
+        ],
         "summary": "Delete Tag",
         "operationId": "delete_tag",
         "parameters": [
@@ -775,6 +964,32 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shopping": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "summary": "Get Shopping Lists",
+        "description": "Every item that is low, out or needed, grouped by the zone of its location.",
+        "operationId": "get_shopping_lists",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ShoppingList"
+                  },
+                  "type": "array",
+                  "title": "Response Get Shopping Lists"
                 }
               }
             }
@@ -815,7 +1030,11 @@
           }
         },
         "type": "object",
-        "required": ["status", "database", "time"],
+        "required": [
+          "status",
+          "database",
+          "time"
+        ],
         "title": "Health"
       },
       "ItemCreate": {
@@ -867,7 +1086,9 @@
           }
         },
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "title": "ItemCreate"
       },
       "ItemDetail": {
@@ -937,6 +1158,14 @@
             "type": "array",
             "title": "Children"
           },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ItemProjectOut"
+            },
+            "type": "array",
+            "title": "Projects",
+            "default": []
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -960,10 +1189,32 @@
           "description",
           "parent",
           "children",
+          "projects",
           "created_at",
           "updated_at"
         ],
         "title": "ItemDetail"
+      },
+      "ItemProjectOut": {
+        "properties": {
+          "project": {
+            "$ref": "#/components/schemas/ProjectRef"
+          },
+          "requirement": {
+            "$ref": "#/components/schemas/Requirement"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project",
+          "requirement",
+          "note"
+        ],
+        "title": "ItemProjectOut"
       },
       "ItemRef": {
         "properties": {
@@ -977,12 +1228,20 @@
           }
         },
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "title": "ItemRef"
       },
       "ItemStatus": {
         "type": "string",
-        "enum": ["have", "low", "out", "need"],
+        "enum": [
+          "have",
+          "low",
+          "out",
+          "need"
+        ],
         "title": "ItemStatus"
       },
       "ItemSummary": {
@@ -1033,7 +1292,15 @@
           }
         },
         "type": "object",
-        "required": ["id", "name", "status", "parent_id", "location_id", "in_inbox", "tags"],
+        "required": [
+          "id",
+          "name",
+          "status",
+          "parent_id",
+          "location_id",
+          "in_inbox",
+          "tags"
+        ],
         "title": "ItemSummary"
       },
       "ItemUpdate": {
@@ -1145,7 +1412,9 @@
           }
         },
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "title": "LocationCreate"
       },
       "LocationOut": {
@@ -1175,7 +1444,12 @@
           }
         },
         "type": "object",
-        "required": ["id", "name", "parent_id", "item_count"],
+        "required": [
+          "id",
+          "name",
+          "parent_id",
+          "item_count"
+        ],
         "title": "LocationOut"
       },
       "LocationUpdate": {
@@ -1242,7 +1516,9 @@
           }
         },
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "title": "ProjectCreate"
       },
       "ProjectDetail": {
@@ -1278,6 +1554,15 @@
             "format": "date-time",
             "title": "Last Touched At"
           },
+          "readiness": {
+            "$ref": "#/components/schemas/Readiness",
+            "default": {
+              "ready": 0,
+              "required": 0,
+              "nice_ready": 0,
+              "nice_to_have": 0
+            }
+          },
           "description_md": {
             "type": "string",
             "title": "Description Md"
@@ -1302,15 +1587,83 @@
           "in_inbox",
           "tags",
           "last_touched_at",
+          "readiness",
           "description_md",
           "created_at",
           "updated_at"
         ],
         "title": "ProjectDetail"
       },
+      "ProjectItemLink": {
+        "properties": {
+          "requirement": {
+            "$ref": "#/components/schemas/Requirement",
+            "default": "required"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "ProjectItemLink",
+        "description": "Links an item, or updates the link if it's already linked."
+      },
+      "ProjectItemOut": {
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/ItemSummary"
+          },
+          "requirement": {
+            "$ref": "#/components/schemas/Requirement"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item",
+          "requirement",
+          "note"
+        ],
+        "title": "ProjectItemOut"
+      },
+      "ProjectRef": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status"
+        ],
+        "title": "ProjectRef"
+      },
       "ProjectStatus": {
         "type": "string",
-        "enum": ["someday", "planned", "active", "paused", "done", "abandoned"],
+        "enum": [
+          "someday",
+          "planned",
+          "active",
+          "paused",
+          "done",
+          "abandoned"
+        ],
         "title": "ProjectStatus"
       },
       "ProjectSummary": {
@@ -1345,10 +1698,28 @@
             "type": "string",
             "format": "date-time",
             "title": "Last Touched At"
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/Readiness",
+            "default": {
+              "ready": 0,
+              "required": 0,
+              "nice_ready": 0,
+              "nice_to_have": 0
+            }
           }
         },
         "type": "object",
-        "required": ["id", "name", "status", "next_step", "in_inbox", "tags", "last_touched_at"],
+        "required": [
+          "id",
+          "name",
+          "status",
+          "next_step",
+          "in_inbox",
+          "tags",
+          "last_touched_at",
+          "readiness"
+        ],
         "title": "ProjectSummary"
       },
       "ProjectUpdate": {
@@ -1429,6 +1800,142 @@
         "title": "ProjectUpdate",
         "description": "Only the fields sent are changed."
       },
+      "Readiness": {
+        "properties": {
+          "ready": {
+            "type": "integer",
+            "title": "Ready",
+            "default": 0
+          },
+          "required": {
+            "type": "integer",
+            "title": "Required",
+            "default": 0
+          },
+          "nice_ready": {
+            "type": "integer",
+            "title": "Nice Ready",
+            "default": 0
+          },
+          "nice_to_have": {
+            "type": "integer",
+            "title": "Nice To Have",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "ready",
+          "required",
+          "nice_ready",
+          "nice_to_have"
+        ],
+        "title": "Readiness",
+        "description": "Linked items on hand (status have or low), out of all linked items."
+      },
+      "Requirement": {
+        "type": "string",
+        "enum": [
+          "required",
+          "nice_to_have"
+        ],
+        "title": "Requirement"
+      },
+      "ShoppingItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemStatus"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "location_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location Id"
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectRef"
+            },
+            "type": "array",
+            "title": "Projects"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status",
+          "parent_id",
+          "location_id",
+          "in_inbox",
+          "tags",
+          "projects"
+        ],
+        "title": "ShoppingItem"
+      },
+      "ShoppingList": {
+        "properties": {
+          "zone": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Zone"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ShoppingItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "zone",
+          "items"
+        ],
+        "title": "ShoppingList",
+        "description": "One zone's list. zone is null for items without a location."
+      },
       "TagCreate": {
         "properties": {
           "name": {
@@ -1439,7 +1946,9 @@
           }
         },
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "title": "TagCreate"
       },
       "TagOut": {
@@ -1462,7 +1971,12 @@
           }
         },
         "type": "object",
-        "required": ["id", "name", "item_count", "project_count"],
+        "required": [
+          "id",
+          "name",
+          "item_count",
+          "project_count"
+        ],
         "title": "TagOut"
       },
       "TagRef": {
@@ -1477,7 +1991,10 @@
           }
         },
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "title": "TagRef"
       },
       "TagUpdate": {
@@ -1490,7 +2007,9 @@
           }
         },
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "title": "TagUpdate"
       },
       "ValidationError": {
@@ -1526,8 +2045,30 @@
           }
         },
         "type": "object",
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError"
+      },
+      "Zone": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "Zone"
       }
     }
   }

@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 from app.core.db import utcnow
 from app.core.errors import ConflictError, NotFoundError
 from app.modules.items.models import Item, ItemStatus
-from app.modules.items.schemas import ItemCreate, ItemUpdate
+from app.modules.items.schemas import ItemCreate, ItemProjectOut, ItemUpdate, ProjectRef
 from app.modules.locations import service as locations
+from app.modules.projects import service as projects
+from app.modules.projects.models import Project, ProjectItem
 from app.modules.tags import service as tags
 from app.modules.tags.models import Tag
 
@@ -79,7 +81,27 @@ def update_item(session: Session, item_id: int, data: ItemUpdate) -> Item:
     return item
 
 
+def linked_projects(session: Session, item_id: int) -> list[ItemProjectOut]:
+    rows = session.execute(
+        select(Project, ProjectItem)
+        .join(ProjectItem)
+        .where(ProjectItem.item_id == item_id)
+        .order_by(func.lower(Project.name))
+    )
+    return [
+        ItemProjectOut(
+            project=ProjectRef(id=project.id, name=project.name, status=project.status),
+            requirement=link.requirement,
+            note=link.note,
+        )
+        for project, link in rows
+    ]
+
+
 def delete_item(session: Session, item_id: int) -> None:
+    item = get_item(session, item_id)
+    # Its project links go with it (ON DELETE CASCADE), which counts as touching those projects.
+    projects.touch_projects_using(session, item_id)
     # Children become top-level items (ON DELETE SET NULL).
-    session.delete(get_item(session, item_id))
+    session.delete(item)
     session.commit()

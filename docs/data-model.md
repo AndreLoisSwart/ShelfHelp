@@ -15,7 +15,7 @@ Item         id, name, description, status,
 
 Location     id, name, parent_id (nullable → Location)
 
-ProjectItem  project_id, item_id, requirement, note
+ProjectItem  project_id, item_id, requirement, note (up to 200 characters)
              PK (project_id, item_id)
 
 Tag          id, name (unique, ignoring case)
@@ -62,6 +62,11 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 - `next_step` is a single line of up to 500 characters and may be empty.
 - Lists are ordered by `last_touched_at`, most recent first.
 
+**Item links**
+- Linking an item that is already linked updates its requirement and note instead.
+- Deleting a project or an item removes its links. Deleting an item touches the projects it was linked to.
+- An item created from a project's "Link item" picker starts as `need`, so it lands on the shopping list.
+
 **Tags**
 - Tag names are unique ignoring case, so "Wood" and "wood" are the same tag.
 - Deleting a tag removes it from every item and project.
@@ -83,6 +88,8 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 **Computed, never stored**
 - **Readiness:** for a project, the count of `required` linked items with status `have` or `low`, out of all `required` linked items. Nice-to-have items are shown separately.
 - **Shopping list:** all items with status `low`, `out` or `need`, grouped by the top-level ancestor of their location. Items without a location go under "Unassigned".
+  - Every zone gets a list, even when empty. "Unassigned" appears only when it has items.
+  - Each item lists the open projects (not `done` or `abandoned`) it is linked to.
 
 **Search**
 - Covers project name, description and next step; item name and description; note title and body. Use SQLite FTS5.

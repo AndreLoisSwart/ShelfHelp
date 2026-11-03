@@ -1,4 +1,4 @@
-import type { ItemStatus, ProjectStatus } from '@/api/generated/model'
+import type { ItemStatus, ProjectStatus, Requirement } from '@/api/generated/model'
 
 // Status colours, see docs/pages.md.
 // Class names are written out in full so Tailwind can find them.
@@ -69,4 +69,9 @@ export const STATUS_ACTIVE_TONES: Record<Status, string> = {
   paused: 'data-[state=on]:bg-status-amber/15 data-[state=on]:text-status-amber',
   done: NEUTRAL_ACTIVE,
   abandoned: NEUTRAL_ACTIVE,
+}
+
+export const REQUIREMENT_LABELS: Record<Requirement, string> = {
+  required: 'Required',
+  nice_to_have: 'Nice to have',
 }

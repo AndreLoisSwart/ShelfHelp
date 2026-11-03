@@ -22,10 +22,10 @@
 | `/projects` | Projects | Board (default) and list toggle; the choice is remembered per device. The board has a column per status, and dragging a card changes its status. Done and abandoned are hidden unless "Show finished" is on. Filter by tag; the list can also filter by status. Most recently touched first. Cards show status, readiness, next step and last touched |
 | `/projects/:id` | Project details | Header with name, status, next step (editable) and readiness bar. Tabs: Overview (tags, description), Notes, Items (linked items with status, "link item"), Files & links. The open tab is kept in the URL. Until the markdown editor arrives (step 6) the description is a plain text box that stores markdown |
 | `/items` | Items | List with location tree filter, plus status and tag filters. Child items appear indented under their parent |
-| `/items/:id` | Item details | Status, location, parent and children, linked projects, links, attachments, description |
+| `/items/:id` | Item details | Status, location, parent and children, "Used in" (linked projects, opening their Items tab), links, attachments, description |
 | `/notes` | Notes | All notes. Filter by project or "No project" |
 | `/notes/:id` | Note editor | Markdown editor, project assignment, links and attachments |
-| `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Each row has a one-tap "Got it" (sets status to `have`). Tapping the row opens Item details |
+| `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Opens on the first zone with something to get. Rows show where in the zone the item lives and which projects it's for. Each row has a one-tap "Got it" (sets status to `have`) with an 8-second Undo. Tapping the row opens Item details |
 | `/inbox` | Inbox | Records with `in_inbox`. Inline fields to sort each one (project, location, tags) and a "Done" button that clears the flag |
 | `/settings` | Settings | Location tree editor and tag management (later: export, backups) |
 
@@ -55,7 +55,7 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 | Component | Used for |
 |---|---|
 | `StatusBadge` | Project and item status, colour-coded |
-| `ReadinessBar` | Project cards and header |
+| `ReadinessBar` | Project cards and header. Hidden when a project has no required items |
 | `TagChips` | Projects and items |
 | `ProjectCard` | Projects list and board, dashboard |
 | `ItemRow` | Items list, project Items tab, shopping, dashboard |

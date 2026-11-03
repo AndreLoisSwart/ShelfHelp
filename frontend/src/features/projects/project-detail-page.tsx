@@ -12,9 +12,11 @@ import { DetailLayout } from '@/components/detail-layout'
 import { EditableText } from '@/components/editable-text'
 import { EmptyState } from '@/components/empty-state'
 import { NotFound } from '@/components/not-found'
+import { ReadinessBar } from '@/components/readiness-bar'
 import { Button } from '@/components/ui/button'
 import { TagEditor } from '@/features/tags/tag-editor'
 import { formatDate, timeAgo } from '@/lib/format'
+import { ProjectItemsTab } from './project-items-tab'
 import { ProjectStatusToggle } from './project-status-toggle'
 
 const comingSoon = (icon: typeof Package, description: string) => (
@@ -71,6 +73,7 @@ export function ProjectDetailPage() {
         Touched {timeAgo(project.last_touched_at)} · Added {formatDate(project.created_at)}
       </p>
       <ProjectStatusToggle value={project.status} onChange={(status) => save({ status })} />
+      <ReadinessBar readiness={project.readiness} detailed className="mt-5 max-w-md" />
       <div className="mt-5">
         <label htmlFor="next-step" className="text-sm font-medium">
           Next step
@@ -123,7 +126,7 @@ export function ProjectDetailPage() {
         {
           value: 'items',
           label: 'Items',
-          content: comingSoon(Package, 'Linked items and readiness arrive in build step 5.'),
+          content: <ProjectItemsTab projectId={projectId} />,
         },
         {
           value: 'files',

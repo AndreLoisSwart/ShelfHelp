@@ -4,6 +4,7 @@
  * Shelf-help
  * OpenAPI spec version: 0.1.0
  */
+import type { ItemProjectOut } from './itemProjectOut';
 import type { ItemRef } from './itemRef';
 import type { ItemStatus } from './itemStatus';
 import type { ItemSummary } from './itemSummary';
@@ -20,6 +21,7 @@ export interface ItemDetail {
   description: string;
   parent: ItemRef | null;
   children: ItemSummary[];
+  projects: ItemProjectOut[];
   created_at: string;
   updated_at: string;
 }

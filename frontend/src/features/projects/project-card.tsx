@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import type { ProjectSummary } from '@/api/generated/model'
+import { ReadinessBar } from '@/components/readiness-bar'
 import { StatusBadge } from '@/components/status-badge'
 import { TagChips } from '@/components/tag-chips'
 import { timeAgo } from '@/lib/format'
@@ -33,6 +34,7 @@ export function ProjectCard({ project, showStatus = true, className }: Props) {
       ) : (
         <p className="mt-1 text-sm text-muted-foreground italic">No next step</p>
       )}
+      <ReadinessBar readiness={project.readiness} className="mt-2" />
       <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
         <span>Touched {timeAgo(project.last_touched_at)}</span>
         <TagChips tags={project.tags} />

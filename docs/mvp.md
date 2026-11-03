@@ -15,7 +15,7 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [x] Parent / child hierarchy
 - [x] Location (tree)
 - [x] Tags
-- [ ] Link items to projects (required / nice-to-have)
+- [x] Link items to projects (required / nice-to-have)
 
 **Locations**
 - [x] Tree editor in Settings
@@ -36,8 +36,8 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [ ] Global search (FTS5) as a command palette
 
 **Derived views**
-- [ ] Project readiness
-- [ ] Shopping page grouped by top-level location, with "Got it"
+- [x] Project readiness
+- [x] Shopping page grouped by top-level location, with "Got it"
 - [ ] Dashboard: active projects and next steps, running low, stale projects
 
 **Platform**
