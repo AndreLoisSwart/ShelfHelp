@@ -15,7 +15,7 @@ Shelf-help is a personal project, item and notes manager. Single user, self-host
 ## Ground rules
 
 - **Stay inside `docs/mvp.md`.** Don't build features from `future-enhancements.md` unless asked. If a change alters a decision, update the relevant doc in the same change.
-- **Organise by feature, not by layer.** Backend: `backend/app/modules/<feature>/` (models, schemas, router, service). Frontend: `frontend/src/features/<feature>/`. Shared UI goes in `frontend/src/components/`.
+- **Organise by feature, not by layer.** Backend: `backend/app/modules/<feature>/` (models, schemas, router, service). Frontend: `frontend/src/features/<feature>/`. Shared UI goes in `frontend/src/components/`; reusable components bound to one feature's data stay in that feature's folder.
 - **Every schema change gets an Alembic migration.** Never edit the database by hand.
 - **Regenerate the TypeScript API client after any API change.** Never hand-write API types on the frontend.
 - **Business rules live in the service layer:** `last_touched_at` updates, inbox flag, the attachment owner check. Keep routers thin.

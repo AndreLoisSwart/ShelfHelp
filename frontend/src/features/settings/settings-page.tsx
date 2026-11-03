@@ -1,7 +1,8 @@
-import { Settings } from 'lucide-react'
 import { useGetHealth } from '@/api/generated/health/health'
-import { EmptyState } from '@/components/empty-state'
 import { PageHeader } from '@/components/page-header'
+import { Separator } from '@/components/ui/separator'
+import { LocationTreeEditor } from '@/features/locations/location-tree-editor'
+import { TagManager } from '@/features/tags/tag-manager'
 
 function SystemStatus() {
   const { data, error, isPending } = useGetHealth()
@@ -11,8 +12,8 @@ function SystemStatus() {
       ? `Unreachable (${error.message})`
       : `API ${data.status}, database ${data.database}`
   return (
-    <section className="mt-8">
-      <h2 className="text-sm font-medium">System</h2>
+    <section>
+      <h2 className="text-lg font-semibold">System</h2>
       <p className="mt-1 text-sm text-muted-foreground">{status}</p>
     </section>
   )
@@ -21,13 +22,14 @@ function SystemStatus() {
 export function SettingsPage() {
   return (
     <>
-      <PageHeader title="Settings" description="Locations and tags." />
-      <EmptyState
-        icon={Settings}
-        title="Nothing here yet"
-        description="The location tree editor and tag management arrive in build step 3."
-      />
-      <SystemStatus />
+      <PageHeader title="Settings" />
+      <div className="grid gap-8">
+        <LocationTreeEditor />
+        <Separator />
+        <TagManager />
+        <Separator />
+        <SystemStatus />
+      </div>
     </>
   )
 }

@@ -18,7 +18,7 @@ Location     id, name, parent_id (nullable → Location)
 ProjectItem  project_id, item_id, requirement, note
              PK (project_id, item_id)
 
-Tag          id, name (unique)
+Tag          id, name (unique, ignoring case)
 ProjectTag   project_id, tag_id
 ItemTag      item_id, tag_id
 
@@ -48,12 +48,18 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 - Items are always created standalone. Linking to a project is a separate action (through `ProjectItem`).
 - `parent_id` allows item hierarchy (e.g. table saw → blades, belts). The schema supports it in V1, while the UI only needs to show it simply.
 - Prevent cycles in `parent_id`.
+- Deleting an item makes its children top-level items (`parent_id` is set to null).
+- New items default to status `have`. `description` is plain text and defaults to empty.
 - For a `need` item, `location_id` means *where it will live*. That decides which shopping list it appears on.
 
 **Locations**
 - Locations form a tree. Top-level locations (no parent) are zones, e.g. Home and Workshop.
 - Filtering by a location includes all of its descendants.
 - Prevent cycles. Block deleting a location that still has items or children, or require them to be reassigned first.
+
+**Tags**
+- Tag names are unique ignoring case, so "Wood" and "wood" are the same tag.
+- Deleting a tag removes it from every item and project.
 
 **Links and attachments**
 - Each record belongs to exactly one of project, item or note, enforced with a CHECK constraint across the three nullable foreign keys.

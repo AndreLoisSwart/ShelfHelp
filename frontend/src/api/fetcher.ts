@@ -22,3 +22,14 @@ export const apiFetch = async <T>(url: string, options: RequestInit): Promise<T>
 // Picked up by orval as the error type of every generated hook. It must be generic.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type ErrorType<_Error> = ApiError
+
+/** A message fit to show the user, e.g. in a toast. */
+export function errorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    const detail = (error.body as { detail?: unknown } | undefined)?.detail
+    if (typeof detail === 'string') return detail
+    if (error.status === 422) return 'Some of the values are not valid'
+    return `Something went wrong (${error.status})`
+  }
+  return 'Could not reach Shelf-help'
+}

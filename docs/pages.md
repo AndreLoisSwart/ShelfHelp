@@ -50,6 +50,8 @@ No inbox section, because the inbox icon already shows the count. On mobile the 
 
 ## Reusable components
 
+Generic components live in `frontend/src/components/`. Components bound to one feature's data (`ItemRow`, `LocationTreeSelect`, `TagEditor`) live in that feature's folder.
+
 | Component | Used for |
 |---|---|
 | `StatusBadge` | Project and item status, colour-coded |
@@ -67,6 +69,9 @@ No inbox section, because the inbox icon already shows the count. On mobile the 
 | `FilterBar` | List pages |
 | `EmptyState` | Any empty list |
 | `ConfirmDialog` | Deletes and other destructive actions |
+| `EditableText` | Names and descriptions edited in place (saves on blur or Enter) |
+| `InlineAddForm` | Adding locations and tags in Settings |
+| `TagEditor` | Assigning tags to projects and items, creating new ones on the fly |
 | `QuickAddSheet` | Quick-add overlay |
 | `SearchPalette` | Search overlay |
 

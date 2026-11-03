@@ -4,7 +4,7 @@ from alembic import context
 from sqlalchemy import text
 
 from app.core.config import settings
-from app.core.db import Base, create_db_engine, import_all_models
+from app.core.db import Base, UTCDateTime, create_db_engine, import_all_models
 
 config = context.config
 if config.config_file_name is not None:
@@ -14,12 +14,20 @@ import_all_models()
 target_metadata = Base.metadata
 
 
+def render_item(type_, obj, autogen_context):
+    # UTCDateTime is a plain DATETIME column; keep app imports out of migrations.
+    if type_ == "type" and isinstance(obj, UTCDateTime):
+        return "sa.DateTime()"
+    return False
+
+
 def run_migrations_offline() -> None:
     context.configure(
         url=settings.database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         render_as_batch=True,
+        render_item=render_item,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -33,7 +41,10 @@ def run_migrations_online() -> None:
     with engine.connect() as connection:
         # render_as_batch: SQLite can't ALTER most things, so Alembic recreates tables.
         context.configure(
-            connection=connection, target_metadata=target_metadata, render_as_batch=True
+            connection=connection,
+            target_metadata=target_metadata,
+            render_as_batch=True,
+            render_item=render_item,
         )
         with context.begin_transaction():
             context.run_migrations()

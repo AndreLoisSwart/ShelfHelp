@@ -11,15 +11,15 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [ ] Tags
 
 **Items**
-- [ ] CRUD with status (have / low / out / need)
-- [ ] Parent / child hierarchy
-- [ ] Location (tree)
-- [ ] Tags
+- [x] CRUD with status (have / low / out / need)
+- [x] Parent / child hierarchy
+- [x] Location (tree)
+- [x] Tags
 - [ ] Link items to projects (required / nice-to-have)
 
 **Locations**
-- [ ] Tree editor in Settings
-- [ ] Filtering by location includes its descendants
+- [x] Tree editor in Settings
+- [x] Filtering by location includes its descendants
 
 **Notes**
 - [ ] Markdown editor (headings, checkboxes, lists, etc.), stored as markdown

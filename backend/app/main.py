@@ -3,7 +3,11 @@ from fastapi.routing import APIRoute
 
 from app.core import health
 from app.core.config import settings
+from app.core.errors import register_error_handlers
 from app.core.frontend import mount_frontend
+from app.modules.items import router as items
+from app.modules.locations import router as locations
+from app.modules.tags import router as tags
 
 
 def operation_id(route: APIRoute) -> str:
@@ -22,8 +26,12 @@ def create_app() -> FastAPI:
 
     api = APIRouter(prefix="/api")
     api.include_router(health.router)
+    api.include_router(locations.router)
+    api.include_router(items.router)
+    api.include_router(tags.router)
 
     app.include_router(api)
+    register_error_handlers(app)
     # Last, so its catch-all route doesn't shadow the API.
     mount_frontend(app, settings.frontend_dist)
     return app

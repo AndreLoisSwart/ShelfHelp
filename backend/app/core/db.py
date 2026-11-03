@@ -1,11 +1,12 @@
 import importlib
 import pkgutil
 from collections.abc import Iterator
+from datetime import UTC, datetime
 from functools import cache
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy import Engine, MetaData, create_engine, event
+from sqlalchemy import DateTime, Engine, MetaData, TypeDecorator, create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 import app.modules
@@ -23,6 +24,23 @@ NAMING_CONVENTION = {
 
 class Base(DeclarativeBase):
     metadata = MetaData(naming_convention=NAMING_CONVENTION)
+
+
+class UTCDateTime(TypeDecorator[datetime]):
+    """Stored as naive UTC (SQLite has no time zones), returned as aware UTC."""
+
+    impl = DateTime
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        return value.astimezone(UTC).replace(tzinfo=None) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return value.replace(tzinfo=UTC) if value is not None else None
+
+
+def utcnow() -> datetime:
+    return datetime.now(UTC)
 
 
 def create_db_engine(url: str, *, foreign_keys: bool = True) -> Engine:
