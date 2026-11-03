@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from app.core import config
 from app.main import create_app
 
-INDEX = '<!doctype html><html><head><title>t</title></head><body></body></html>'
+INDEX = "<!doctype html><html><head><title>t</title></head><body></body></html>"
 PREFIX = "/api/hassio_ingress/abc123"
 
 

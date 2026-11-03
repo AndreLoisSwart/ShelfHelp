@@ -72,6 +72,17 @@ No inbox section, because the inbox icon already shows the count. On mobile the 
 
 ## Visual style
 
-- **Base:** shadcn neutral theme with one accent colour.
-- **Colour:** status colours are the only other colour, so "Out", "Need" and stale projects stand out.
+- **Base:** shadcn neutral theme (Nova preset, Geist font, lucide icons) with one accent colour: **muted blue**.
+- **Light and dark:** follows the device's colour scheme. There is no manual toggle.
+- **Colour:** status colours are the only other colour, so "Out", "Need" and stale projects stand out. Tokens are defined in `frontend/src/index.css` (`bg-status-green`, `text-status-red`, etc.):
+
+  | Colour | Used for |
+  |---|---|
+  | Green | Item `have`, project `active` |
+  | Amber | Item `low`, project `paused` |
+  | Red | Item `out` |
+  | Violet | Item `need`, project `planned` |
+  | Orange | Stale projects |
+  | Neutral (no colour) | Project `someday`, `done`, `abandoned` |
+
 - **Layout:** generous spacing, few borders. Must be usable at phone width without horizontal scrolling.

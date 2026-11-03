@@ -31,7 +31,9 @@ def build_app(upstream: str) -> Starlette:
             target += "?" + request.url.query
         headers = {k: v for k, v in request.headers.items() if k not in DROP_HEADERS}
         headers["X-Ingress-Path"] = PREFIX
-        res = await client.request(request.method, target, headers=headers, content=await request.body())
+        res = await client.request(
+            request.method, target, headers=headers, content=await request.body()
+        )
         out = {k: v for k, v in res.headers.items() if k not in DROP_HEADERS}
         return Response(res.content, res.status_code, out)
 

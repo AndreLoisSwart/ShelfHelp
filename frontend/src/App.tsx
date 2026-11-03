@@ -1,43 +1,33 @@
-import { useEffect, useState } from 'react'
-import { Link, Route, Routes } from 'react-router'
-import { apiUrl, BASE_PATH } from './lib/base-path'
-
-// Step 1 placeholder: proves routing, assets and API calls work behind Ingress.
-
-function Home() {
-  const [health, setHealth] = useState('checking…')
-
-  useEffect(() => {
-    fetch(apiUrl('/api/health'))
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
-      .then((body: { status: string; time: string }) => setHealth(`${body.status} at ${body.time}`))
-      .catch((err: Error) => setHealth(`error: ${err.message}`))
-  }, [])
-
-  return (
-    <>
-      <h1>Shelf-help</h1>
-      <p>API health: {health}</p>
-      <p>Base path: {BASE_PATH || '/'}</p>
-    </>
-  )
-}
-
-function About() {
-  return <p>Second route. Refresh this page to test deep links.</p>
-}
+import { Route, Routes } from 'react-router'
+import { AppShell } from '@/components/layout/app-shell'
+import { NotFound } from '@/components/not-found'
+import { DashboardPage } from '@/features/dashboard/dashboard-page'
+import { InboxPage } from '@/features/inbox/inbox-page'
+import { ItemDetailPage } from '@/features/items/item-detail-page'
+import { ItemsPage } from '@/features/items/items-page'
+import { NoteEditorPage } from '@/features/notes/note-editor-page'
+import { NotesPage } from '@/features/notes/notes-page'
+import { ProjectDetailPage } from '@/features/projects/project-detail-page'
+import { ProjectsPage } from '@/features/projects/projects-page'
+import { SettingsPage } from '@/features/settings/settings-page'
+import { ShoppingPage } from '@/features/shopping/shopping-page'
 
 export default function App() {
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', padding: 16 }}>
-      <nav>
-        <Link to="/">Home</Link> · <Link to="/about">About</Link> · <Link to="/nested/route">Nested</Link>
-      </nav>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="*" element={<Home />} />
-      </Routes>
-    </main>
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="projects" element={<ProjectsPage />} />
+        <Route path="projects/:id" element={<ProjectDetailPage />} />
+        <Route path="items" element={<ItemsPage />} />
+        <Route path="items/:id" element={<ItemDetailPage />} />
+        <Route path="notes" element={<NotesPage />} />
+        <Route path="notes/:id" element={<NoteEditorPage />} />
+        <Route path="shopping" element={<ShoppingPage />} />
+        <Route path="inbox" element={<InboxPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   )
 }

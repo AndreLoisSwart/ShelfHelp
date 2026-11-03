@@ -1,3 +1,5 @@
 #!/bin/sh
 set -e
-exec /app/backend/.venv/bin/uvicorn app.main:create_app --factory --host 0.0.0.0 --port 8099
+cd /app/backend
+.venv/bin/alembic upgrade head
+exec .venv/bin/uvicorn app.main:create_app --factory --host 0.0.0.0 --port 8099

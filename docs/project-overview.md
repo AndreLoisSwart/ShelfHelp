@@ -29,7 +29,7 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 
 | Layer | Choice |
 |---|---|
-| Backend | Python 3.12, FastAPI, SQLAlchemy / SQLModel, Alembic, Pydantic |
+| Backend | Python 3.12, FastAPI, SQLAlchemy 2.0 (with separate Pydantic schemas), Alembic, Pydantic |
 | Database | SQLite (single file in `/data`) |
 | Frontend | React, TypeScript, Vite |
 | UI | shadcn/ui (Radix + Tailwind) |
@@ -44,7 +44,8 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 - Optionally also exposed on a **direct LAN port** (8099) for desktop or browser use. It is **disabled by default** because it bypasses HA authentication, and is enabled from the add-on's Network settings in HA.
 - **Ingress base path:** HA strips its prefix and sends it in `X-Ingress-Path`. When serving `index.html`, the backend injects it as a `<base>` tag and as `window.__BASE_PATH__`, which the frontend uses for the router basename and API URLs.
 - **Remote access is through the existing VPN tunnel.** Nothing is exposed to the internet.
-- **Data lives in `/data`** (database plus `/data/attachments/`), so it is included in HA backups.
+- **Data lives in `/data`** (database plus `/data/attachments/`), so it is included in HA backups. The add-on uses **cold backups**: HA stops it for a few seconds while backing up, so the SQLite file is never copied mid-write.
+- **Migrations run automatically** every time the add-on starts.
 - **Development happens on the desktop** (CachyOS) with hot reload. HAOS is for deployment only.
 - **Code lives in its own GitHub repo** (`ShelfHelp`), separate from the Home Assistant automations repo. It is deployed by cloning into `/addons` on HAOS and installing it as a local add-on.
 
@@ -78,7 +79,7 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 │     ├─ api/               # generated client
 │     ├─ components/        # shared reusable UI
 │     ├─ lib/               # shared non-UI code, e.g. base path
-│     └─ features/          # mirrors backend modules
+│     └─ features/          # mirrors backend modules, plus dashboard, shopping and settings
 └─ addon/                   # files copied into the add-on image, e.g. run script
 ```
 

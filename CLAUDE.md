@@ -36,11 +36,21 @@ Python is managed with `uv`, the frontend with `npm`. Local image builds use Pod
 | Backend dev server (port 8099, hot reload) | `cd backend && uv run uvicorn app.main:create_app --factory --reload --port 8099` |
 | Frontend dev server (proxies `/api` to 8099) | `cd frontend && npm run dev` |
 | Backend tests | `cd backend && uv run pytest` |
+| Lint and format check (backend) | `cd backend && uv run ruff check . && uv run ruff format --check .` |
+| Lint and format check (frontend) | `cd frontend && npm run lint` (fix formatting with `npm run format`) |
+| Apply migrations to the dev database (`.data/`) | `cd backend && uv run alembic upgrade head` |
+| Create a migration after changing models | `cd backend && uv run alembic revision --autogenerate -m "<what changed>"`, then review the generated file |
+| Regenerate the API client after any API change | `cd frontend && npm run gen:api` |
 | Build frontend (served by the backend from `frontend/dist`) | `cd frontend && npm run build` |
 | Test behind a fake Ingress prefix (needs a built frontend and the backend on 8099) | `cd backend && uv run python scripts/ingress_proxy.py`, then open `http://localhost:8100/api/hassio_ingress/dev-token/` |
 | Build the add-on image | `podman build -t shelf-help .` |
 | Run the add-on image (open via `127.0.0.1`, not `localhost`: rootless Podman resets IPv6 connections) | `podman run --rm -p 8099:8099 -v ./.data:/data shelf-help` |
 
-Still to come: migrations (step 2) and API client generation with orval (step 2).
+Notes:
+- Data lives in `SHELF_DATA_DIR`: `.data/` at the repo root in dev, `/data` in the add-on.
+- The add-on runs `alembic upgrade head` on every start (`addon/run.sh`).
+- `tests/test_db.py` fails if models change without a matching migration.
+- `npm run gen:api` exports the spec to `frontend/openapi.json` and regenerates `frontend/src/api/generated/`. Both are committed; never edit them by hand.
+- Add shadcn components with `cd frontend && npx shadcn@latest add <name>`.
 
 **Deploying:** the repo root is the add-on folder (`config.yaml` and `Dockerfile` live there). Clone it into `/addons` on HAOS, then install it from Settings → Add-ons → Add-on store → Local add-ons. To update, pull, bump `version` in `config.yaml`, and rebuild from the add-on page.
