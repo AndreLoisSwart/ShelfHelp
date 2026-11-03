@@ -1,10 +1,14 @@
 import { Trash2 } from 'lucide-react'
+import type { TagOut } from '@/api/generated/model'
 import { useCreateTag, useDeleteTag, useListTags, useUpdateTag } from '@/api/generated/tags/tags'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { EditableText } from '@/components/editable-text'
 import { InlineAddForm } from '@/components/inline-add-form'
 import { Button } from '@/components/ui/button'
 import { plural } from '@/lib/format'
+
+const usage = (tag: TagOut) =>
+  `${plural(tag.item_count, 'item')} and ${plural(tag.project_count, 'project')}`
 
 export function TagManager() {
   const { data: tags = [], isPending } = useListTags()
@@ -30,14 +34,12 @@ export function TagManager() {
                 onSave={(name) => updateTag.mutate({ tagId: tag.id, data: { name } })}
                 aria-label={`Name of tag ${tag.name}`}
               />
-              <span className="shrink-0 text-xs text-muted-foreground">
-                {plural(tag.item_count, 'item')}
-              </span>
+              <span className="shrink-0 text-xs text-muted-foreground">{usage(tag)}</span>
               <ConfirmDialog
                 title={`Delete the tag ${tag.name}?`}
                 description={
-                  tag.item_count > 0
-                    ? `It will be removed from ${plural(tag.item_count, 'item')}.`
+                  tag.item_count + tag.project_count > 0
+                    ? `It will be removed from ${usage(tag)}.`
                     : undefined
                 }
                 onConfirm={() => deleteTag.mutate({ tagId: tag.id })}

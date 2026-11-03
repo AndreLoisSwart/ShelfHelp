@@ -57,6 +57,11 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 - Filtering by a location includes all of its descendants.
 - Prevent cycles. Block deleting a location that still has items or children, or require them to be reassigned first.
 
+**Projects**
+- New projects default to status `someday`.
+- `next_step` is a single line of up to 500 characters and may be empty.
+- Lists are ordered by `last_touched_at`, most recent first.
+
 **Tags**
 - Tag names are unique ignoring case, so "Wood" and "wood" are the same tag.
 - Deleting a tag removes it from every item and project.
@@ -72,6 +77,7 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
   - any of its notes
   - its item links
   - its links or attachments
+- Each module that changes something attached to a project calls `projects.service.touch()`.
 - "Stale" means an `active` or `paused` project whose `last_touched_at` is older than a threshold. The threshold is configurable and defaults to 3 weeks.
 
 **Computed, never stored**

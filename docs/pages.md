@@ -19,8 +19,8 @@
 | Route | Page | Contents |
 |---|---|---|
 | `/` | Home | Dashboard, see below |
-| `/projects` | Projects | List and board toggle. Filters for status and tag. Cards show status, readiness, next step and last touched |
-| `/projects/:id` | Project details | Header with name, status, next step (editable) and readiness bar. Tabs: Overview (description), Notes, Items (linked items with status, "link item"), Files & links |
+| `/projects` | Projects | Board (default) and list toggle; the choice is remembered per device. The board has a column per status, and dragging a card changes its status. Done and abandoned are hidden unless "Show finished" is on. Filter by tag; the list can also filter by status. Most recently touched first. Cards show status, readiness, next step and last touched |
+| `/projects/:id` | Project details | Header with name, status, next step (editable) and readiness bar. Tabs: Overview (tags, description), Notes, Items (linked items with status, "link item"), Files & links. The open tab is kept in the URL. Until the markdown editor arrives (step 6) the description is a plain text box that stores markdown |
 | `/items` | Items | List with location tree filter, plus status and tag filters. Child items appear indented under their parent |
 | `/items/:id` | Item details | Status, location, parent and children, linked projects, links, attachments, description |
 | `/notes` | Notes | All notes. Filter by project or "No project" |

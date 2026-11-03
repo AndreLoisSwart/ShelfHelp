@@ -5,14 +5,23 @@ type Props = {
   value: string
   onSave: (value: string) => void
   'aria-label': string
-  /** Single line reverts an emptied value instead of saving it; multiline may be empty. */
+  id?: string
   multiline?: boolean
+  /** Single line reverts an emptied value instead of saving it, unless this is set. */
+  allowEmpty?: boolean
   placeholder?: string
   className?: string
 }
 
 /** Text that reads as plain text and edits in place. Saves on blur or Enter. */
-export function EditableText({ value, onSave, multiline, className, ...rest }: Props) {
+export function EditableText({
+  value,
+  onSave,
+  multiline,
+  allowEmpty = multiline,
+  className,
+  ...rest
+}: Props) {
   const [draft, setDraft] = useState(value)
   const [saved, setSaved] = useState(value)
   const cancelled = useRef(false)
@@ -30,7 +39,7 @@ export function EditableText({ value, onSave, multiline, className, ...rest }: P
       return
     }
     const next = multiline ? draft : draft.trim()
-    if (!multiline && !next) setDraft(value)
+    if (!next && !allowEmpty) setDraft(value)
     else if (next !== value) onSave(next)
   }
 

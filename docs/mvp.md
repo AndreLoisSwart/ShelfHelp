@@ -5,10 +5,10 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 ## In scope
 
 **Projects**
-- [ ] CRUD with status (someday → planned → active → paused → done/abandoned)
-- [ ] Next step (editable inline) and last touched
-- [ ] List and board views, board with drag-and-drop between statuses
-- [ ] Tags
+- [x] CRUD with status (someday → planned → active → paused → done/abandoned)
+- [x] Next step (editable inline) and last touched
+- [x] List and board views, board with drag-and-drop between statuses
+- [x] Tags
 
 **Items**
 - [x] CRUD with status (have / low / out / need)

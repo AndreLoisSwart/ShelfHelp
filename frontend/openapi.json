@@ -411,6 +411,236 @@
         }
       }
     },
+    "/api/projects": {
+      "get": {
+        "tags": ["projects"],
+        "summary": "List Projects",
+        "description": "Most recently touched first. Several status or tag_id values match any of them.",
+        "operationId": "list_projects",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectStatus"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "tag_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectSummary"
+                  },
+                  "title": "Response List Projects"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["projects"],
+        "summary": "Create Project",
+        "operationId": "create_project",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{project_id}": {
+      "get": {
+        "tags": ["projects"],
+        "summary": "Get Project",
+        "operationId": "get_project",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["projects"],
+        "summary": "Update Project",
+        "operationId": "update_project",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["projects"],
+        "summary": "Delete Project",
+        "operationId": "delete_project",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tags": {
       "get": {
         "tags": ["tags"],
@@ -979,6 +1209,226 @@
         "title": "LocationUpdate",
         "description": "Only the fields sent are changed. parent_id: null moves it to the top level."
       },
+      "ProjectCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus",
+            "default": "someday"
+          },
+          "description_md": {
+            "type": "string",
+            "title": "Description Md",
+            "default": ""
+          },
+          "next_step": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Next Step",
+            "default": ""
+          },
+          "tag_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Tag Ids",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": ["name"],
+        "title": "ProjectCreate"
+      },
+      "ProjectDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          },
+          "next_step": {
+            "type": "string",
+            "title": "Next Step"
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "last_touched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Touched At"
+          },
+          "description_md": {
+            "type": "string",
+            "title": "Description Md"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status",
+          "next_step",
+          "in_inbox",
+          "tags",
+          "last_touched_at",
+          "description_md",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProjectDetail"
+      },
+      "ProjectStatus": {
+        "type": "string",
+        "enum": ["someday", "planned", "active", "paused", "done", "abandoned"],
+        "title": "ProjectStatus"
+      },
+      "ProjectSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          },
+          "next_step": {
+            "type": "string",
+            "title": "Next Step"
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "last_touched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Touched At"
+          }
+        },
+        "type": "object",
+        "required": ["id", "name", "status", "next_step", "in_inbox", "tags", "last_touched_at"],
+        "title": "ProjectSummary"
+      },
+      "ProjectUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description_md": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description Md"
+          },
+          "next_step": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Step"
+          },
+          "tag_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag Ids"
+          },
+          "in_inbox": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Inbox"
+          }
+        },
+        "type": "object",
+        "title": "ProjectUpdate",
+        "description": "Only the fields sent are changed."
+      },
       "TagCreate": {
         "properties": {
           "name": {
@@ -1005,10 +1455,14 @@
           "item_count": {
             "type": "integer",
             "title": "Item Count"
+          },
+          "project_count": {
+            "type": "integer",
+            "title": "Project Count"
           }
         },
         "type": "object",
-        "required": ["id", "name", "item_count"],
+        "required": ["id", "name", "item_count", "project_count"],
         "title": "TagOut"
       },
       "TagRef": {

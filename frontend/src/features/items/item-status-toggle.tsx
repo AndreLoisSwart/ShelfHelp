@@ -1,6 +1,6 @@
 import type { ItemStatus } from '@/api/generated/model'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { ITEM_STATUS_ACTIVE_TONES, ITEM_STATUS_LABELS, ITEM_STATUSES } from '@/lib/statuses'
+import { STATUS_ACTIVE_TONES, ITEM_STATUS_LABELS, ITEM_STATUSES } from '@/lib/statuses'
 
 type Props = { value: ItemStatus; onChange: (status: ItemStatus) => void; id?: string }
 
@@ -17,7 +17,7 @@ export function ItemStatusToggle({ value, onChange, id }: Props) {
       className="flex-wrap"
     >
       {ITEM_STATUSES.map((status) => (
-        <ToggleGroupItem key={status} value={status} className={ITEM_STATUS_ACTIVE_TONES[status]}>
+        <ToggleGroupItem key={status} value={status} className={STATUS_ACTIVE_TONES[status]}>
           {ITEM_STATUS_LABELS[status]}
         </ToggleGroupItem>
       ))}

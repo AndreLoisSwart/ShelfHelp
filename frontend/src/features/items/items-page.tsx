@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useLocationTree } from '@/features/locations/location-tree'
 import { LocationTreeSelect } from '@/features/locations/location-tree-select'
-import { ITEM_STATUS_ACTIVE_TONES, ITEM_STATUS_LABELS, ITEM_STATUSES } from '@/lib/statuses'
+import { STATUS_ACTIVE_TONES, ITEM_STATUS_LABELS, ITEM_STATUSES } from '@/lib/statuses'
 import { ItemRow } from './item-row'
 import { nestItems } from './item-tree'
 import { NewItemDialog } from './new-item-dialog'
@@ -76,11 +76,7 @@ export function ItemsPage() {
           aria-label="Status"
         >
           {ITEM_STATUSES.map((status) => (
-            <ToggleGroupItem
-              key={status}
-              value={status}
-              className={ITEM_STATUS_ACTIVE_TONES[status]}
-            >
+            <ToggleGroupItem key={status} value={status} className={STATUS_ACTIVE_TONES[status]}>
               {ITEM_STATUS_LABELS[status]}
             </ToggleGroupItem>
           ))}
