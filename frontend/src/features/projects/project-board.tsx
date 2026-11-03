@@ -59,6 +59,7 @@ function Column({ status, projects }: { status: ProjectStatus; projects: Project
 /** A column per status. Dragging a card to another column changes its status. */
 export function ProjectBoard({ projects, statuses, onMove }: Props) {
   const [activeId, setActiveId] = useState<number | null>(null)
+  const [animateDrop, setAnimateDrop] = useState(true)
   // A drag that ends over the card's own link would otherwise also open the project.
   const justDragged = useRef(false)
   const sensors = useSensors(
@@ -70,11 +71,14 @@ export function ProjectBoard({ projects, statuses, onMove }: Props) {
   const active = projects.find((project) => project.id === activeId)
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
-    setActiveId(null)
     setTimeout(() => (justDragged.current = false))
     const project = projects.find((p) => p.id === active.id)
     const status = over?.id as ProjectStatus | undefined
-    if (project && status && project.status !== status) onMove(project.id, status)
+    const target = project && status && project.status !== status ? status : null
+    // Set with the drag ending, so the overlay reads it as it drops.
+    setAnimateDrop(target === null)
+    setActiveId(null)
+    if (project && target) onMove(project.id, target)
   }
 
   return (
@@ -85,7 +89,10 @@ export function ProjectBoard({ projects, statuses, onMove }: Props) {
         setActiveId(Number(active.id))
       }}
       onDragEnd={onDragEnd}
-      onDragCancel={() => setActiveId(null)}
+      onDragCancel={() => {
+        setAnimateDrop(true)
+        setActiveId(null)
+      }}
     >
       <div
         className="-mx-4 flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-2 md:mx-0 md:scroll-px-0 md:px-0"
@@ -104,7 +111,9 @@ export function ProjectBoard({ projects, statuses, onMove }: Props) {
           />
         ))}
       </div>
-      <DragOverlay>
+      {/* The default animation glides back to the card's old spot, which is wrong once the
+          card has moved column: it would fly back, then jump. Only animate a drag that's undone. */}
+      <DragOverlay dropAnimation={animateDrop ? undefined : null}>
         {active && (
           <ProjectCard project={active} showStatus={false} className="rotate-2 shadow-lg" />
         )}
