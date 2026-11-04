@@ -62,8 +62,8 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 | `EntityPicker` | Search existing records with "create new" (e.g. linking items to a project) |
 | `LocationTreeSelect` | Item location, items filter |
 | `MarkdownEditor` | Note editor, project description. Toolbar (headings, bold, italic, strikethrough, link, lists, checklist, quote, code block) plus markdown shortcuts as you type. Loaded on demand, since it is most of the bundle |
-| `LinkList` | Links on projects, items and notes |
-| `AttachmentList` | Attachments on projects, items and notes |
+| `LinkList` | Links on projects, items and notes. Add a URL and optional title; a link without a title shows its domain |
+| `AttachmentList` | Attachments on projects, items and notes. Upload several at once; PDFs and images open in a new tab, other files download |
 | `PageHeader` | All pages |
 | `DetailLayout` | Header plus tabs for detail pages |
 | `FilterBar` | List pages |

@@ -28,6 +28,10 @@ export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     const detail = (error.body as { detail?: unknown } | undefined)?.detail
     if (typeof detail === 'string') return detail
+    // FastAPI validation errors: a list, each with a message. Show the first one.
+    if (Array.isArray(detail) && typeof detail[0]?.msg === 'string') {
+      return detail[0].msg.replace(/^Value error, /, '')
+    }
     if (error.status === 422) return 'Some of the values are not valid'
     return `Something went wrong (${error.status})`
   }

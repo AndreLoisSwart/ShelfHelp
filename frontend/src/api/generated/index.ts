@@ -1,5 +1,7 @@
+export * from './attachments/attachments';
 export * from './health/health';
 export * from './items/items';
+export * from './links/links';
 export * from './locations/locations';
 export * from './notes/notes';
 export * from './projects/projects';

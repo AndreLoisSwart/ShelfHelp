@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.core.db import utcnow
 from app.core.errors import ConflictError, NotFoundError
+from app.modules.attachments import storage
+from app.modules.attachments.models import Attachment
 from app.modules.items.models import Item, ItemStatus
 from app.modules.items.schemas import ItemCreate, ItemProjectOut, ItemUpdate, ProjectRef
 from app.modules.locations import service as locations
@@ -102,6 +104,9 @@ def delete_item(session: Session, item_id: int) -> None:
     item = get_item(session, item_id)
     # Its project links go with it (ON DELETE CASCADE), which counts as touching those projects.
     projects.touch_projects_using(session, item_id)
-    # Children become top-level items (ON DELETE SET NULL).
+    # Children become top-level items (ON DELETE SET NULL). Links and attachments go with
+    # it (ON DELETE CASCADE); their files are removed once the delete is committed.
+    files = storage.stored_paths_of(session, Attachment.item_id, item_id)
     session.delete(item)
     session.commit()
+    storage.remove_files(files)

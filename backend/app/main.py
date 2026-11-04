@@ -5,7 +5,9 @@ from app.core import health
 from app.core.config import settings
 from app.core.errors import register_error_handlers
 from app.core.frontend import mount_frontend
+from app.modules.attachments import router as attachments
 from app.modules.items import router as items
+from app.modules.links import router as links
 from app.modules.locations import router as locations
 from app.modules.notes import router as notes
 from app.modules.projects import router as projects
@@ -35,6 +37,8 @@ def create_app() -> FastAPI:
     api.include_router(notes.router)
     api.include_router(tags.router)
     api.include_router(shopping.router)
+    api.include_router(links.router)
+    api.include_router(attachments.router)
 
     app.include_router(api)
     register_error_handlers(app)

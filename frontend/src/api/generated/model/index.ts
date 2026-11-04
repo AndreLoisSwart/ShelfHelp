@@ -5,6 +5,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './attachmentOut';
+export * from './bodyUploadAttachment';
 export * from './health';
 export * from './hTTPValidationError';
 export * from './itemCreate';
@@ -14,7 +16,12 @@ export * from './itemRef';
 export * from './itemStatus';
 export * from './itemSummary';
 export * from './itemUpdate';
+export * from './linkCreate';
+export * from './linkOut';
+export * from './linkUpdate';
+export * from './listAttachmentsParams';
 export * from './listItemsParams';
+export * from './listLinksParams';
 export * from './listNotesParams';
 export * from './listProjectsParams';
 export * from './locationCreate';
@@ -24,6 +31,7 @@ export * from './noteCreate';
 export * from './noteDetail';
 export * from './noteSummary';
 export * from './noteUpdate';
+export * from './ownerType';
 export * from './projectCreate';
 export * from './projectDetail';
 export * from './projectItemLink';

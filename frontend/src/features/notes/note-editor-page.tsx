@@ -11,6 +11,7 @@ import { EntityPicker } from '@/components/entity-picker'
 import { LazyMarkdownEditor } from '@/components/lazy-markdown-editor'
 import { NotFound } from '@/components/not-found'
 import { Button } from '@/components/ui/button'
+import { FilesAndLinks } from '@/features/attachments/files-and-links'
 import { formatDate } from '@/lib/format'
 import { useAutosave } from '@/lib/use-autosave'
 
@@ -98,6 +99,10 @@ export function NoteEditorPage() {
         aria-label="Note"
         placeholder="Write here. Markdown shortcuts work: # heading, - list, [ ] checkbox."
       />
+
+      <div className="mt-8">
+        <FilesAndLinks ownerType="note" ownerId={note.id} />
+      </div>
 
       <p className="mt-6 text-xs text-muted-foreground">
         Added {formatDate(note.created_at)} · Updated {formatDate(note.updated_at)}

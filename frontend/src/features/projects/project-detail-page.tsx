@@ -1,4 +1,4 @@
-import { FolderKanban, Paperclip, Plus, Trash2 } from 'lucide-react'
+import { FolderKanban, Plus, Trash2 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router'
 import { errorMessage } from '@/api/fetcher'
 import type { ProjectUpdate } from '@/api/generated/model'
@@ -15,6 +15,7 @@ import { LazyMarkdownEditor } from '@/components/lazy-markdown-editor'
 import { NotFound } from '@/components/not-found'
 import { ReadinessBar } from '@/components/readiness-bar'
 import { Button } from '@/components/ui/button'
+import { FilesAndLinks } from '@/features/attachments/files-and-links'
 import { NewNoteDialog } from '@/features/notes/new-note-dialog'
 import { NoNotesYet, NotesList } from '@/features/notes/notes-list'
 import { TagEditor } from '@/features/tags/tag-editor'
@@ -22,10 +23,6 @@ import { formatDate, timeAgo } from '@/lib/format'
 import { useAutosave } from '@/lib/use-autosave'
 import { ProjectItemsTab } from './project-items-tab'
 import { ProjectStatusToggle } from './project-status-toggle'
-
-const comingSoon = (icon: typeof Paperclip, description: string) => (
-  <EmptyState icon={icon} title="Nothing here yet" description={description} />
-)
 
 export function ProjectDetailPage() {
   const projectId = Number(useParams().id)
@@ -157,7 +154,7 @@ export function ProjectDetailPage() {
         {
           value: 'files',
           label: 'Files & links',
-          content: comingSoon(Paperclip, 'Links and attachments arrive in build step 7.'),
+          content: <FilesAndLinks ownerType="project" ownerId={projectId} />,
         },
       ]}
     />

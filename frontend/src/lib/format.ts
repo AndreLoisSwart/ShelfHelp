@@ -22,3 +22,19 @@ export function timeAgo(iso: string): string {
   }
   return 'just now'
 }
+
+/** e.g. "820 KB", "4.2 MB". */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/** The site's name for a link with no title, e.g. "example.com". */
+export function domainOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
+}

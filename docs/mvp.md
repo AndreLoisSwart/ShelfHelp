@@ -27,8 +27,8 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [x] Notes list with project and "no project" filters
 
 **Links and attachments**
-- [ ] Links on projects, items and notes
-- [ ] File attachments on projects, items and notes (manuals, datasheets)
+- [x] Links on projects, items and notes
+- [x] File attachments on projects, items and notes (manuals, datasheets)
 
 **Capture and finding**
 - [ ] Quick-add overlay (type and name, saves to inbox)

@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     data_dir: Path = REPO_DIR / ".data"
     # Built frontend served by FastAPI. Missing in dev, where Vite serves it instead.
     frontend_dist: Path = REPO_DIR / "frontend" / "dist"
+    # Keeps a mistaken upload from bloating every HA backup.
+    max_upload_mb: int = 50
 
     @property
     def database_url(self) -> str:

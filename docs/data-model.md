@@ -80,6 +80,12 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 - Each record belongs to exactly one of project, item or note, enforced with a CHECK constraint across the three nullable foreign keys.
 - Deleting the owner deletes its links and attachments. For attachments, the service also removes the file from disk.
 - Attachment files are stored in `/data/attachments/` under generated names. The original filename is kept in the database.
+- The API names an owner as `owner_type` (`project`, `item` or `note`) plus `owner_id`. The shared rules are in `backend/app/modules/owners.py`.
+- Changes to a project's links or attachments touch it, and so do changes to those of its notes.
+- Links must be `http://` or `https://`. Other schemes, like `javascript:`, could run code when clicked.
+- Uploads are limited to 50 MB per file (`SHELF_MAX_UPLOAD_MB`).
+- **Serving files safely:** behind Ingress, files come from Home Assistant's own origin, so a file the browser runs as a page could act with the user's HA login. Only PDFs and PNG, JPEG, GIF and WebP images open in the browser. Everything else downloads as `application/octet-stream`. All file responses send `X-Content-Type-Options: nosniff`, and images also send a sandboxing Content-Security-Policy. The type comes from the file extension, not the browser's claim.
+- File responses are revalidated on every request (`no-cache`), because SQLite can reuse a deleted attachment's id.
 
 **Last touched**
 - `Project.last_touched_at` is set by the service layer whenever any of the following change:

@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.core.db import utcnow
 from app.core.errors import NotFoundError
+from app.modules.attachments import storage
+from app.modules.attachments.models import Attachment
 from app.modules.notes.models import Note
 from app.modules.notes.schemas import NoteCreate, NoteUpdate
 from app.modules.projects import service as projects
@@ -77,5 +79,8 @@ def update_note(session: Session, note_id: int, data: NoteUpdate) -> Note:
 def delete_note(session: Session, note_id: int) -> None:
     note = get_note(session, note_id)
     _touch_project(session, note.project_id)
+    # Links and attachments go with it (ON DELETE CASCADE); remove the files after.
+    files = storage.stored_paths_of(session, Attachment.note_id, note_id)
     session.delete(note)
     session.commit()
+    storage.remove_files(files)

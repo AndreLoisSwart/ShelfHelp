@@ -6,7 +6,15 @@ from functools import cache
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy import DateTime, Engine, MetaData, TypeDecorator, create_engine, event
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    Engine,
+    MetaData,
+    TypeDecorator,
+    create_engine,
+    event,
+)
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 import app.modules
@@ -41,6 +49,15 @@ class UTCDateTime(TypeDecorator[datetime]):
 
 def utcnow() -> datetime:
     return datetime.now(UTC)
+
+
+def one_owner_constraint() -> CheckConstraint:
+    """For links and attachments: exactly one of project_id, item_id and note_id is set.
+    SQLite adds booleans as 0 and 1."""
+    return CheckConstraint(
+        "(project_id IS NOT NULL) + (item_id IS NOT NULL) + (note_id IS NOT NULL) = 1",
+        name="one_owner",
+    )
 
 
 def create_db_engine(url: str, *, foreign_keys: bool = True) -> Engine:

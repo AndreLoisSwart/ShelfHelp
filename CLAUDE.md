@@ -48,7 +48,7 @@ Python is managed with `uv`, the frontend with `npm`. Local image builds use Pod
 | Run the add-on image (open via `127.0.0.1`, not `localhost`: rootless Podman resets IPv6 connections) | `podman run --rm -p 8099:8099 -v ./.data:/data shelf-help` |
 
 Notes:
-- Data lives in `SHELF_DATA_DIR`: `.data/` at the repo root in dev, `/data` in the add-on.
+- Data lives in `SHELF_DATA_DIR`: `.data/` at the repo root in dev, `/data` in the add-on. Upload limit: `SHELF_MAX_UPLOAD_MB` (default 50).
 - The add-on runs `alembic upgrade head` on every start (`addon/run.sh`).
 - `tests/test_db.py` fails if models change without a matching migration.
 - `npm run gen:api` exports the spec to `frontend/openapi.json` and regenerates `frontend/src/api/generated/`. Both are committed; never edit them by hand.

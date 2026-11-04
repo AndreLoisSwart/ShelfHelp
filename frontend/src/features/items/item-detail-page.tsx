@@ -11,6 +11,7 @@ import { EntityPicker } from '@/components/entity-picker'
 import { NotFound } from '@/components/not-found'
 import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
+import { FilesAndLinks } from '@/features/attachments/files-and-links'
 import { useLocationTree } from '@/features/locations/location-tree'
 import { LocationTreeSelect } from '@/features/locations/location-tree-select'
 import { TagEditor } from '@/features/tags/tag-editor'
@@ -200,6 +201,10 @@ export function ItemDetailPage() {
           </p>
         )}
       </section>
+
+      <div className="mt-8">
+        <FilesAndLinks ownerType="item" ownerId={item.id} />
+      </div>
 
       <p className="mt-10 text-xs text-muted-foreground">
         Added {formatDate(item.created_at)} · Updated {formatDate(item.updated_at)}

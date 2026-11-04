@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.core.db import utcnow
 from app.core.errors import NotFoundError
+from app.modules.attachments import storage
+from app.modules.attachments.models import Attachment
 from app.modules.items.models import Item, ItemStatus
 from app.modules.projects.models import Project, ProjectItem, ProjectStatus, Requirement
 from app.modules.projects.schemas import (
@@ -102,8 +104,13 @@ def update_project(session: Session, project_id: int, data: ProjectUpdate) -> Pr
 
 
 def delete_project(session: Session, project_id: int) -> None:
-    session.delete(get_project(session, project_id))
+    project = get_project(session, project_id)
+    # Its links, attachments and item links go with it (ON DELETE CASCADE), but files on
+    # disk don't: remove them once the delete is committed. Its notes are kept.
+    files = storage.stored_paths_of(session, Attachment.project_id, project_id)
+    session.delete(project)
     session.commit()
+    storage.remove_files(files)
 
 
 def list_project_items(session: Session, project_id: int) -> list[ProjectItem]:
