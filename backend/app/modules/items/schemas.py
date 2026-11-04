@@ -55,6 +55,7 @@ class ItemCreate(BaseModel):
     parent_id: int | None = None
     location_id: int | None = None
     tag_ids: list[int] = []
+    in_inbox: bool = False
 
 
 class ItemUpdate(BaseModel):

@@ -82,6 +82,7 @@ def create_project(session: Session, data: ProjectCreate) -> Project:
         description_md=data.description_md,
         next_step=data.next_step.strip(),
         tags=tags.get_tags(session, data.tag_ids),
+        in_inbox=data.in_inbox,
     )
     session.add(project)
     session.commit()

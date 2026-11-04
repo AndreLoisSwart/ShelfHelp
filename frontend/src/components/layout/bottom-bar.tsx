@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react'
 import { NavLink } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { useQuickAdd } from '@/features/inbox/use-quick-add'
 import { cn } from '@/lib/utils'
 import { home, items, projects, shopping, type NavItem } from './nav'
 
@@ -23,13 +24,13 @@ function BottomLink({ item }: { item: NavItem }) {
 }
 
 export function BottomBar() {
+  const quickAdd = useQuickAdd()
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 flex items-center border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden">
       <BottomLink item={home} />
       <BottomLink item={projects} />
       <div className="flex flex-1 justify-center">
-        {/* Quick-add arrives in build step 8. */}
-        <Button size="icon-lg" className="rounded-full" disabled title="Coming soon">
+        <Button size="icon-lg" className="rounded-full" onClick={quickAdd}>
           <Plus />
           <span className="sr-only">Add</span>
         </Button>

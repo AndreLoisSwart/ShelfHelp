@@ -47,6 +47,7 @@ class ProjectCreate(BaseModel):
     description_md: str = ""
     next_step: str = Field(default="", max_length=500)
     tag_ids: list[int] = []
+    in_inbox: bool = False
 
 
 class ProjectUpdate(BaseModel):

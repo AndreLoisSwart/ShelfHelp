@@ -29,6 +29,7 @@ class NoteCreate(BaseModel):
     title: Name
     project_id: int | None = None
     body_md: str = ""
+    in_inbox: bool = False
 
 
 class NoteUpdate(BaseModel):

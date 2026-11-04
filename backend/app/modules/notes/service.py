@@ -1,10 +1,9 @@
-import re
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.db import utcnow
 from app.core.errors import NotFoundError
+from app.core.markdown import plain_text
 from app.modules.attachments import storage
 from app.modules.attachments.models import Attachment
 from app.modules.notes.models import Note
@@ -12,19 +11,10 @@ from app.modules.notes.schemas import NoteCreate, NoteUpdate
 from app.modules.projects import service as projects
 
 EXCERPT_LENGTH = 140
-# Markdown syntax that reads as noise in a one-line preview.
-_MARKDOWN_NOISE = re.compile(
-    # Line starts: checkbox (before plain bullets), heading, bullet, number, quote.
-    r"^\s*([-*+] \[[ xX]\]|#{1,6}|[-*+]|\d+\.|>)\s+"
-    # Emphasis and code marks, and links (keeping their text).
-    r"|[*_`~]|\[([^\]]*)\]\([^)]*\)",
-    re.M,
-)
 
 
 def excerpt(body_md: str) -> str:
-    text = _MARKDOWN_NOISE.sub(lambda m: m.group(2) or "", body_md)
-    text = " ".join(text.split())
+    text = plain_text(body_md)
     return text if len(text) <= EXCERPT_LENGTH else text[: EXCERPT_LENGTH - 1].rstrip() + "…"
 
 
@@ -53,7 +43,9 @@ def list_notes(
 
 def create_note(session: Session, data: NoteCreate) -> Note:
     _touch_project(session, data.project_id)
-    note = Note(title=data.title, project_id=data.project_id, body_md=data.body_md)
+    note = Note(
+        title=data.title, project_id=data.project_id, body_md=data.body_md, in_inbox=data.in_inbox
+    )
     session.add(note)
     session.commit()
     return note

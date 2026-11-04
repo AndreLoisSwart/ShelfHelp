@@ -1,5 +1,7 @@
 import { Inbox, LibraryBig, Menu, Plus, Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { useGetInboxCount } from '@/api/generated/inbox/inbox'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -7,12 +9,46 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useQuickAdd } from '@/features/inbox/use-quick-add'
+import { SearchPalette } from '@/features/search/search-palette'
 import { notes, settings } from './nav'
 
-// Search, quick-add and the inbox count arrive in build step 8.
-const COMING_SOON = 'Coming soon'
+function InboxLink() {
+  const { data } = useGetInboxCount()
+  const count = data?.count ?? 0
+  return (
+    <Button variant="ghost" size="icon" className="relative" asChild>
+      <Link to="/inbox">
+        <Inbox />
+        <span className="sr-only">Inbox{count > 0 && `, ${count} to sort`}</span>
+        {count > 0 && (
+          <span
+            aria-hidden
+            className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground tabular-nums"
+          >
+            {count > 99 ? '99+' : count}
+          </span>
+        )}
+      </Link>
+    </Button>
+  )
+}
 
 export function TopBar() {
+  const quickAdd = useQuickAdd()
+  const [searching, setSearching] = useState(false)
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        setSearching((open) => !open)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur md:px-8">
       <Link to="/" className="flex items-center gap-2 font-semibold md:hidden">
@@ -23,8 +59,7 @@ export function TopBar() {
       <Button
         variant="outline"
         className="hidden w-64 justify-start text-muted-foreground md:flex"
-        disabled
-        title={COMING_SOON}
+        onClick={() => setSearching(true)}
       >
         <Search />
         Search…
@@ -32,17 +67,17 @@ export function TopBar() {
       </Button>
 
       <div className="ml-auto flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="md:hidden" disabled title={COMING_SOON}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={() => setSearching(true)}
+        >
           <Search />
           <span className="sr-only">Search</span>
         </Button>
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/inbox">
-            <Inbox />
-            <span className="sr-only">Inbox</span>
-          </Link>
-        </Button>
-        <Button className="hidden md:flex" disabled title={COMING_SOON}>
+        <InboxLink />
+        <Button className="hidden md:flex" onClick={quickAdd}>
           <Plus />
           Add
         </Button>
@@ -65,6 +100,7 @@ export function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <SearchPalette open={searching} onOpenChange={setSearching} />
     </header>
   )
 }

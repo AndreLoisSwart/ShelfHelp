@@ -17,4 +17,5 @@ export interface ItemCreate {
   parent_id?: number | null;
   location_id?: number | null;
   tag_ids?: number[];
+  in_inbox?: boolean;
 }

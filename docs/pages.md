@@ -26,7 +26,7 @@
 | `/notes` | Notes | All notes, most recently updated first, with a text excerpt. Filter by project or "No project" |
 | `/notes/:id` | Note editor | Title, project assignment, markdown editor, links and attachments. Saves automatically shortly after typing stops and when leaving the page, with a Saving…/Saved indicator. Deleting goes to the project's Notes tab, or to Notes |
 | `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Opens on the first zone with something to get. Rows show where in the zone the item lives and which projects it's for. Each row has a one-tap "Got it" (sets status to `have`) with an 8-second Undo. Tapping the row opens Item details |
-| `/inbox` | Inbox | Records with `in_inbox`. Inline fields to sort each one (project, location, tags) and a "Done" button that clears the flag |
+| `/inbox` | Inbox | Records with `in_inbox`, grouped into items, projects and notes, newest first. Inline fields to sort each one (items: status, location, tags; projects: status, tags; notes: project) and a "Done" button that clears the flag, with Undo. Detail pages of inbox records show an "In the inbox" notice with its own Done button |
 | `/settings` | Settings | Location tree editor and tag management (later: export, backups) |
 
 There is deliberately **no shopping-list item detail page**. Shopping rows are items, so they open Item details.
@@ -45,8 +45,8 @@ No inbox section, because the inbox icon already shows the count. On mobile the 
 
 ## Overlays
 
-- **Quick-add:** a dialog on desktop and a bottom sheet on mobile. Choose the type (Item / Note / Project), enter a name, save. Saves to the inbox and never navigates away.
-- **Search:** a command palette (Ctrl+K, or the search icon). Results are grouped into projects, items and notes, and selecting one navigates to it.
+- **Quick-add:** a dialog on desktop and a bottom sheet on mobile, opened from the Add button (desktop), the bottom bar's **+** (mobile) or the search palette. Choose the type (Item / Note / Project, the last one used is remembered per device), enter a name, and for an item pick Have or Need to get. Enter saves to the inbox, closes, and shows a toast with an Open button; it never navigates away by itself.
+- **Search:** a command palette (Ctrl+K or Cmd+K, or the search icon). Results are grouped into projects, items and notes, up to 5 each, with matched words highlighted and a status badge for projects and items. Selecting one navigates to it. With nothing typed it lists the pages and Quick add.
 
 ## Reusable components
 
@@ -72,8 +72,8 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 | `EditableText` | Names and descriptions edited in place (saves on blur or Enter) |
 | `InlineAddForm` | Adding locations and tags in Settings |
 | `TagEditor` | Assigning tags to projects and items, creating new ones on the fly |
-| `QuickAddSheet` | Quick-add overlay |
-| `SearchPalette` | Search overlay |
+| `QuickAddSheet` | Quick-add overlay (`features/inbox`, opened anywhere with `useQuickAdd()`) |
+| `SearchPalette` | Search overlay (`features/search`) |
 
 ## Visual style
 

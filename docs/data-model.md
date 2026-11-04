@@ -41,7 +41,8 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 
 **Inbox**
 - Quick-add creates the real record (Project, Item or Note) with `in_inbox = true`. There is no separate capture table.
-- The inbox shows every record with `in_inbox = true`. Sorting a record clears the flag.
+- The inbox shows every record with `in_inbox = true`, newest first. Only an explicit "Done" clears the flag, from the inbox or the record's page; filling in details doesn't, so nothing leaves the inbox by accident.
+- Quick-add sets the type and name, plus Have or Need to get for an item. Projects start as `someday`.
 - Inbox records still count everywhere else, including search and the shopping list.
 
 **Items**
@@ -104,3 +105,7 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 
 **Search**
 - Covers project name, description and next step; item name and description; note title and body. Use SQLite FTS5.
+- One FTS5 table, `search_index` (kind, record_id, title, body), kept in sync by SQLite triggers on `projects`, `items` and `notes`, so no code path can forget it. It is not a mapped model: `app/modules/search/index.py` holds its SQL, and Alembic ignores it.
+  - SQLite drops a table's triggers with the table, and batch migrations rebuild tables. A migration that rebuilds `projects`, `items` or `notes` must recreate their triggers. `tests/test_db.py` fails if they're missing.
+- Tokenizer `unicode61 remove_diacritics 2`: case and accents are ignored. Every word typed must match the start of a word ("tab sa" finds "Table saw"). Words are quoted, so nothing typed can use FTS5 query syntax.
+- Title matches rank above body matches. Up to 5 results per kind, each with its title and the best-matching stretch of the body as plain text, matched words marked with the control characters U+0002 and U+0003. The frontend renders them as text, never HTML.

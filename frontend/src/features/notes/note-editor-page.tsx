@@ -12,6 +12,7 @@ import { LazyMarkdownEditor } from '@/components/lazy-markdown-editor'
 import { NotFound } from '@/components/not-found'
 import { Button } from '@/components/ui/button'
 import { FilesAndLinks } from '@/features/attachments/files-and-links'
+import { InboxNotice } from '@/features/inbox/inbox-notice'
 import { formatDate } from '@/lib/format'
 import { useAutosave } from '@/lib/use-autosave'
 
@@ -68,6 +69,7 @@ export function NoteEditorPage() {
         />
       </div>
 
+      {note.in_inbox && <InboxNotice onDone={() => save({ in_inbox: false })} className="mt-2" />}
       <div className="mt-2 mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
         <EntityPicker
           options={projects.map((p) => ({ id: p.id, label: p.name }))}

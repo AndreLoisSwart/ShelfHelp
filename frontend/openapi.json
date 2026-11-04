@@ -1568,6 +1568,94 @@
           }
         }
       }
+    },
+    "/api/inbox": {
+      "get": {
+        "tags": [
+          "inbox"
+        ],
+        "summary": "Get Inbox",
+        "description": "Quick-added records still waiting to be sorted, newest first.",
+        "operationId": "get_inbox",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inbox"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inbox/count": {
+      "get": {
+        "tags": [
+          "inbox"
+        ],
+        "summary": "Get Inbox Count",
+        "operationId": "get_inbox_count",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxCount"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "Search",
+        "description": "Up to 5 of each kind, best match first. Every word must match the start of a word.",
+        "operationId": "search",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": "",
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResults"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1672,6 +1760,51 @@
         ],
         "title": "Health"
       },
+      "Inbox": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectSummary"
+            },
+            "type": "array",
+            "title": "Projects"
+          },
+          "notes": {
+            "items": {
+              "$ref": "#/components/schemas/NoteSummary"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "projects",
+          "notes"
+        ],
+        "title": "Inbox"
+      },
+      "InboxCount": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count"
+        ],
+        "title": "InboxCount"
+      },
       "ItemCreate": {
         "properties": {
           "name": {
@@ -1718,6 +1851,11 @@
             "type": "array",
             "title": "Tag Ids",
             "default": []
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox",
+            "default": false
           }
         },
         "type": "object",
@@ -1829,6 +1967,33 @@
           "updated_at"
         ],
         "title": "ItemDetail"
+      },
+      "ItemHit": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "snippet": {
+            "type": "string",
+            "title": "Snippet"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ItemStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "snippet",
+          "status"
+        ],
+        "title": "ItemHit"
       },
       "ItemProjectOut": {
         "properties": {
@@ -2224,6 +2389,11 @@
             "type": "string",
             "title": "Body Md",
             "default": ""
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox",
+            "default": false
           }
         },
         "type": "object",
@@ -2427,6 +2597,11 @@
             "type": "array",
             "title": "Tag Ids",
             "default": []
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox",
+            "default": false
           }
         },
         "type": "object",
@@ -2507,6 +2682,33 @@
           "updated_at"
         ],
         "title": "ProjectDetail"
+      },
+      "ProjectHit": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "snippet": {
+            "type": "string",
+            "title": "Snippet"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "snippet",
+          "status"
+        ],
+        "title": "ProjectHit"
       },
       "ProjectItemLink": {
         "properties": {
@@ -2754,6 +2956,62 @@
           "nice_to_have"
         ],
         "title": "Requirement"
+      },
+      "SearchHit": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "snippet": {
+            "type": "string",
+            "title": "Snippet"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "snippet"
+        ],
+        "title": "SearchHit",
+        "description": "title and snippet wrap each matched word in \\u0002 and \\u0003."
+      },
+      "SearchResults": {
+        "properties": {
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectHit"
+            },
+            "type": "array",
+            "title": "Projects"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemHit"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "notes": {
+            "items": {
+              "$ref": "#/components/schemas/SearchHit"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "projects",
+          "items",
+          "notes"
+        ],
+        "title": "SearchResults"
       },
       "ShoppingItem": {
         "properties": {

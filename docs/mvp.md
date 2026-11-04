@@ -31,9 +31,9 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [x] File attachments on projects, items and notes (manuals, datasheets)
 
 **Capture and finding**
-- [ ] Quick-add overlay (type and name, saves to inbox)
-- [ ] Inbox page and icon with count
-- [ ] Global search (FTS5) as a command palette
+- [x] Quick-add overlay (type and name, saves to inbox)
+- [x] Inbox page and icon with count
+- [x] Global search (FTS5) as a command palette
 
 **Derived views**
 - [x] Project readiness

@@ -13,4 +13,5 @@ export interface NoteCreate {
   title: string;
   project_id?: number | null;
   body_md?: string;
+  in_inbox?: boolean;
 }

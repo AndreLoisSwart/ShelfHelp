@@ -12,6 +12,7 @@ import { NotFound } from '@/components/not-found'
 import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
 import { FilesAndLinks } from '@/features/attachments/files-and-links'
+import { InboxNotice } from '@/features/inbox/inbox-notice'
 import { useLocationTree } from '@/features/locations/location-tree'
 import { LocationTreeSelect } from '@/features/locations/location-tree-select'
 import { TagEditor } from '@/features/tags/tag-editor'
@@ -98,6 +99,7 @@ export function ItemDetailPage() {
         />
       </div>
 
+      {item.in_inbox && <InboxNotice onDone={() => save({ in_inbox: false })} className="mb-6" />}
       <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-[7rem_1fr]">
         <Field label="Status" htmlFor="item-status">
           <ItemStatusToggle

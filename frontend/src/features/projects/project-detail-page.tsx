@@ -16,6 +16,7 @@ import { NotFound } from '@/components/not-found'
 import { ReadinessBar } from '@/components/readiness-bar'
 import { Button } from '@/components/ui/button'
 import { FilesAndLinks } from '@/features/attachments/files-and-links'
+import { InboxNotice } from '@/features/inbox/inbox-notice'
 import { NewNoteDialog } from '@/features/notes/new-note-dialog'
 import { NoNotesYet, NotesList } from '@/features/notes/notes-list'
 import { TagEditor } from '@/features/tags/tag-editor'
@@ -76,6 +77,9 @@ export function ProjectDetailPage() {
       <p className="mb-5 text-xs text-muted-foreground">
         Touched {timeAgo(project.last_touched_at)} · Added {formatDate(project.created_at)}
       </p>
+      {project.in_inbox && (
+        <InboxNotice onDone={() => save({ in_inbox: false })} className="mb-5" />
+      )}
       <ProjectStatusToggle value={project.status} onChange={(status) => save({ status })} />
       <ReadinessBar readiness={project.readiness} detailed className="mt-5 max-w-md" />
       <div className="mt-5">

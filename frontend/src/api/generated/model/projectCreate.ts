@@ -17,4 +17,5 @@ export interface ProjectCreate {
   /** @maxLength 500 */
   next_step?: string;
   tag_ids?: number[];
+  in_inbox?: boolean;
 }

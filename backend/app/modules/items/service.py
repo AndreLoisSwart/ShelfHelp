@@ -61,6 +61,7 @@ def create_item(session: Session, data: ItemCreate) -> Item:
         parent_id=data.parent_id,
         location_id=data.location_id,
         tags=tags.get_tags(session, data.tag_ids),
+        in_inbox=data.in_inbox,
     )
     session.add(item)
     session.commit()

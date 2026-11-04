@@ -5,6 +5,7 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.db import Base, UTCDateTime, create_db_engine, import_all_models
+from app.modules.search.index import is_search_table
 
 config = context.config
 if config.config_file_name is not None:
@@ -21,6 +22,11 @@ def render_item(type_, obj, autogen_context):
     return False
 
 
+def include_name(name, type_, parent_names):
+    # The search index is managed by hand (see app/modules/search/index.py).
+    return not (type_ == "table" and is_search_table(name))
+
+
 def run_migrations_offline() -> None:
     context.configure(
         url=settings.database_url,
@@ -28,6 +34,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         render_as_batch=True,
         render_item=render_item,
+        include_name=include_name,
     )
     with context.begin_transaction():
         context.run_migrations()
@@ -45,6 +52,7 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             render_as_batch=True,
             render_item=render_item,
+            include_name=include_name,
         )
         with context.begin_transaction():
             context.run_migrations()
