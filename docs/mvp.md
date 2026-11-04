@@ -38,7 +38,7 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 **Derived views**
 - [x] Project readiness
 - [x] Shopping page grouped by top-level location, with "Got it"
-- [ ] Dashboard: active projects and next steps, running low, stale projects
+- [x] Dashboard: active projects and next steps, running low, stale projects
 
 **Platform**
 - [ ] HA add-on packaging, Ingress-compatible, data in `/data`
@@ -66,8 +66,8 @@ Packaging and Ingress come first because they are the riskiest part. Proving the
 - Multiple users, or authentication beyond HA
 - Anything in `future-enhancements.md`
 
-## Open decisions
+## Decisions
 
-- Default threshold for a stale project (proposed: 3 weeks; `data-model.md` already uses this as the configurable default)
+Decided: stale projects default to 3 weeks, changeable in Settings (step 9).
 
 Decided: the markdown editor is TipTap with its official markdown extension (step 6), gated by round-trip tests.

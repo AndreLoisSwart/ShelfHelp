@@ -1,4 +1,5 @@
 export * from './attachments/attachments';
+export * from './dashboard/dashboard';
 export * from './health/health';
 export * from './inbox/inbox';
 export * from './items/items';
@@ -7,5 +8,6 @@ export * from './locations/locations';
 export * from './notes/notes';
 export * from './projects/projects';
 export * from './search/search';
+export * from './settings/settings';
 export * from './shopping/shopping';
 export * from './tags/tags';

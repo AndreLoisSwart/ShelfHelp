@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/page-header'
 import { Separator } from '@/components/ui/separator'
 import { LocationTreeEditor } from '@/features/locations/location-tree-editor'
 import { TagManager } from '@/features/tags/tag-manager'
+import { StaleSetting } from './stale-setting'
 
 function SystemStatus() {
   const { data, error, isPending } = useGetHealth()
@@ -27,6 +28,8 @@ export function SettingsPage() {
         <LocationTreeEditor />
         <Separator />
         <TagManager />
+        <Separator />
+        <StaleSetting />
         <Separator />
         <SystemStatus />
       </div>

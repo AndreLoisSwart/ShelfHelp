@@ -1656,6 +1656,87 @@
           }
         }
       }
+    },
+    "/api/settings": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Get Settings",
+        "operationId": "get_settings",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Update Settings",
+        "operationId": "update_settings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard": {
+      "get": {
+        "tags": [
+          "dashboard"
+        ],
+        "summary": "Get Dashboard",
+        "operationId": "get_dashboard",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dashboard"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1722,6 +1803,48 @@
           "file"
         ],
         "title": "Body_upload_attachment"
+      },
+      "Dashboard": {
+        "properties": {
+          "active": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectSummary"
+            },
+            "type": "array",
+            "title": "Active"
+          },
+          "running_low": {
+            "items": {
+              "$ref": "#/components/schemas/ItemSummary"
+            },
+            "type": "array",
+            "title": "Running Low"
+          },
+          "running_low_total": {
+            "type": "integer",
+            "title": "Running Low Total"
+          },
+          "stale": {
+            "items": {
+              "$ref": "#/components/schemas/StaleProject"
+            },
+            "type": "array",
+            "title": "Stale"
+          },
+          "stale_after_days": {
+            "type": "integer",
+            "title": "Stale After Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "active",
+          "running_low",
+          "running_low_total",
+          "stale",
+          "stale_after_days"
+        ],
+        "title": "Dashboard"
       },
       "HTTPValidationError": {
         "properties": {
@@ -3013,6 +3136,39 @@
         ],
         "title": "SearchResults"
       },
+      "SettingsOut": {
+        "properties": {
+          "stale_after_days": {
+            "type": "integer",
+            "title": "Stale After Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stale_after_days"
+        ],
+        "title": "SettingsOut"
+      },
+      "SettingsUpdate": {
+        "properties": {
+          "stale_after_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 365.0,
+                "minimum": 7.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stale After Days"
+          }
+        },
+        "type": "object",
+        "title": "SettingsUpdate",
+        "description": "Only the fields sent are changed."
+      },
       "ShoppingItem": {
         "properties": {
           "id": {
@@ -3107,6 +3263,34 @@
         ],
         "title": "ShoppingList",
         "description": "One zone's list. zone is null for items without a location."
+      },
+      "StaleProject": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          },
+          "last_touched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Touched At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "status",
+          "last_touched_at"
+        ],
+        "title": "StaleProject"
       },
       "TagCreate": {
         "properties": {

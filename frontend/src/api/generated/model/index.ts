@@ -7,6 +7,7 @@
 
 export * from './attachmentOut';
 export * from './bodyUploadAttachment';
+export * from './dashboard';
 export * from './health';
 export * from './hTTPValidationError';
 export * from './inbox';
@@ -49,8 +50,11 @@ export * from './requirement';
 export * from './searchHit';
 export * from './searchParams';
 export * from './searchResults';
+export * from './settingsOut';
+export * from './settingsUpdate';
 export * from './shoppingItem';
 export * from './shoppingList';
+export * from './staleProject';
 export * from './tagCreate';
 export * from './tagOut';
 export * from './tagRef';

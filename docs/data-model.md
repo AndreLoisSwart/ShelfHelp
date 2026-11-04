@@ -27,7 +27,11 @@ Link         id, url, title,
 
 Attachment   id, original_filename, mime_type, size, stored_path, created_at,
              project_id | item_id | note_id   (exactly one set)
+
+AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
 ```
+
+`AppSettings` is a single row holding app-wide preferences, shared by every device. It is created with the defaults the first time it is read.
 
 ## Enums
 
@@ -95,7 +99,7 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
   - its item links
   - its links or attachments
 - Each module that changes something attached to a project calls `projects.service.touch()`.
-- "Stale" means an `active` or `paused` project whose `last_touched_at` is older than a threshold. The threshold is configurable and defaults to 3 weeks.
+- "Stale" means an `active` or `paused` project whose `last_touched_at` is older than a threshold. The threshold is `AppSettings.stale_after_days`, set in Settings, and defaults to 3 weeks.
 
 **Computed, never stored**
 - **Readiness:** for a project, the count of `required` linked items with status `have` or `low`, out of all `required` linked items. Nice-to-have items are shown separately.

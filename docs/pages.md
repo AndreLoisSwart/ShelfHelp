@@ -27,7 +27,7 @@
 | `/notes/:id` | Note editor | Title, project assignment, markdown editor, links and attachments. Saves automatically shortly after typing stops and when leaving the page, with a Saving…/Saved indicator. Deleting goes to the project's Notes tab, or to Notes |
 | `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Opens on the first zone with something to get. Rows show where in the zone the item lives and which projects it's for. Each row has a one-tap "Got it" (sets status to `have`) with an 8-second Undo. Tapping the row opens Item details |
 | `/inbox` | Inbox | Records with `in_inbox`, grouped into items, projects and notes, newest first. Inline fields to sort each one (items: status, location, tags; projects: status, tags; notes: project) and a "Done" button that clears the flag, with Undo. Detail pages of inbox records show an "In the inbox" notice with its own Done button |
-| `/settings` | Settings | Location tree editor and tag management (later: export, backups) |
+| `/settings` | Settings | Location tree editor, tag management, and when a project counts as stale (1 to 12 weeks). Later: export, backups |
 
 There is deliberately **no shopping-list item detail page**. Shopping rows are items, so they open Item details.
 
@@ -37,9 +37,11 @@ The **project Notes tab** reuses the Notes list component, filtered to that proj
 
 Sections in priority order:
 
-1. **Active projects with their next step.** The next step is editable inline on the card. This is the most-used section.
-2. **Running low.** A compact list (name, status badge, location) capped at about 5 to 8 items, linking to Shopping.
-3. **Stale projects.** Smaller, a nudge rather than a guilt list, e.g. "Table saw restoration — 6 weeks".
+1. **Active projects with their next step.** Every `active` project, most recently touched first. The next step is editable inline on the card (which touches the project); the name opens it. The touched time turns orange when the project is stale. This is the most-used section.
+2. **Running low.** A compact list (name, status badge, location) of items that are out, then low, capped at 6, with "and N more on the shopping list". Need-to-get items are left to the shopping list. Links to Shopping.
+3. **Stale projects**, titled "Gone quiet". Smaller, a nudge rather than a guilt list: active or paused projects past the threshold, oldest first, e.g. "Table saw restoration — 6 weeks". Paused ones show their badge.
+
+The page comes from one computed endpoint, `GET /api/dashboard`.
 
 No inbox section, because the inbox icon already shows the count. On mobile the sections stack in this order. On desktop, active projects take the full width with the other two side by side below.
 

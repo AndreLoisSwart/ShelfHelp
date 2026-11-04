@@ -38,3 +38,15 @@ export function domainOf(url: string): string {
     return url
   }
 }
+
+/** How long since a timestamp, without "ago": "10 days", "6 weeks", "4 months". */
+export function durationSince(iso: string, now = Date.now()): string {
+  const days = Math.floor((now - new Date(iso).getTime()) / 86_400_000)
+  if (days < 14) return plural(days, 'day')
+  if (days < 12 * 7) return plural(Math.floor(days / 7), 'week')
+  return plural(Math.floor(days / 30), 'month')
+}
+
+/** A whole number of days as weeks when it divides evenly: "3 weeks", "10 days". */
+export const daysAsWeeks = (days: number) =>
+  days % 7 === 0 ? plural(days / 7, 'week') : plural(days, 'day')

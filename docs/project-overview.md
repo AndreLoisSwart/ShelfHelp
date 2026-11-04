@@ -73,6 +73,8 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 │  │     ├─ inbox/
 │  │     ├─ search/
 │  │     ├─ shopping/       # computed shopping list, no tables
+│  │     ├─ dashboard/      # computed dashboard, no tables
+│  │     ├─ settings/       # app-wide preferences (single row)
 │  │     └─ owners.py       # shared owner rules for links and attachments
 │  ├─ migrations/           # Alembic
 │  ├─ scripts/              # dev tools, e.g. the Ingress stand-in proxy
