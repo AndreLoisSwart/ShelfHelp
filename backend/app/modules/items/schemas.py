@@ -26,6 +26,8 @@ class ItemSummary(ItemRef):
 
 
 class ProjectRef(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     status: ProjectStatus

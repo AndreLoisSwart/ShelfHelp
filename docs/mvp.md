@@ -22,9 +22,9 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [x] Filtering by location includes its descendants
 
 **Notes**
-- [ ] Markdown editor (headings, checkboxes, lists, etc.), stored as markdown
-- [ ] Optional project assignment
-- [ ] Notes list with project and "no project" filters
+- [x] Markdown editor (headings, checkboxes, lists, etc.), stored as markdown
+- [x] Optional project assignment
+- [x] Notes list with project and "no project" filters
 
 **Links and attachments**
 - [ ] Links on projects, items and notes
@@ -68,5 +68,6 @@ Packaging and Ingress come first because they are the riskiest part. Proving the
 
 ## Open decisions
 
-- Markdown editor: Milkdown or TipTap with markdown serialisation
-- Default threshold for a stale project (proposed: 3 weeks)
+- Default threshold for a stale project (proposed: 3 weeks; `data-model.md` already uses this as the configurable default)
+
+Decided: the markdown editor is TipTap with its official markdown extension (step 6), gated by round-trip tests.

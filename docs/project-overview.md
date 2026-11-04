@@ -35,7 +35,8 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 | UI | shadcn/ui (Radix + Tailwind) |
 | Data fetching | TanStack Query, with a TS client generated from FastAPI's OpenAPI spec (`orval`, which also generates the TanStack Query hooks) |
 | Drag and drop | dnd-kit (project board) |
-| Markdown editor | WYSIWYG editor that stores plain markdown (Milkdown or TipTap + markdown). Final choice open |
+| Markdown editor | TipTap 3 with `@tiptap/markdown`, storing plain markdown. `frontend/src/components/markdown-roundtrip.test.ts` checks that notes survive a load and save |
+| Frontend tests | Vitest (jsdom) |
 
 ## Hosting
 

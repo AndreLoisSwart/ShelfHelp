@@ -36,6 +36,7 @@ Python is managed with `uv`, the frontend with `npm`. Local image builds use Pod
 | Backend dev server (port 8099, hot reload) | `cd backend && uv run uvicorn app.main:create_app --factory --reload --port 8099` |
 | Frontend dev server (proxies `/api` to 8099) | `cd frontend && npm run dev` |
 | Backend tests | `cd backend && uv run pytest` |
+| Frontend tests (includes the markdown round-trip gate) | `cd frontend && npm test` |
 | Lint and format check (backend) | `cd backend && uv run ruff check . && uv run ruff format --check .` |
 | Lint and format check (frontend) | `cd frontend && npm run lint` (fix formatting with `npm run format`) |
 | Apply migrations to the dev database (`.data/`) | `cd backend && uv run alembic upgrade head` |

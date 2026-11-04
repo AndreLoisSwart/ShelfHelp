@@ -67,6 +67,11 @@ Attachment   id, original_filename, mime_type, size, stored_path, created_at,
 - Deleting a project or an item removes its links. Deleting an item touches the projects it was linked to.
 - An item created from a project's "Link item" picker starts as `need`, so it lands on the shopping list.
 
+**Notes**
+- `body_md` is stored exactly as the editor saves it. The editor normalises style (e.g. `*` bullets become `-`), so a note may be reformatted the first time it is saved.
+- Creating, editing or deleting a note touches its project. Moving a note touches both projects.
+- Deleting a project keeps its notes, without a project (`project_id` is set to null).
+
 **Tags**
 - Tag names are unique ignoring case, so "Wood" and "wood" are the same tag.
 - Deleting a tag removes it from every item and project.

@@ -822,6 +822,234 @@
         }
       }
     },
+    "/api/notes": {
+      "get": {
+        "tags": [
+          "notes"
+        ],
+        "summary": "List Notes",
+        "description": "Most recently updated first. no_project lists only notes without a project.",
+        "operationId": "list_notes",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "no_project",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "No Project"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NoteSummary"
+                  },
+                  "title": "Response List Notes"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "notes"
+        ],
+        "summary": "Create Note",
+        "operationId": "create_note",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notes/{note_id}": {
+      "get": {
+        "tags": [
+          "notes"
+        ],
+        "summary": "Get Note",
+        "operationId": "get_note",
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Note Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "notes"
+        ],
+        "summary": "Update Note",
+        "operationId": "update_note",
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Note Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NoteUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notes"
+        ],
+        "summary": "Delete Note",
+        "operationId": "delete_note",
+        "parameters": [
+          {
+            "name": "note_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Note Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tags": {
       "get": {
         "tags": [
@@ -1482,6 +1710,193 @@
         "type": "object",
         "title": "LocationUpdate",
         "description": "Only the fields sent are changed. parent_id: null moves it to the top level."
+      },
+      "NoteCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "body_md": {
+            "type": "string",
+            "title": "Body Md",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "NoteCreate"
+      },
+      "NoteDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt",
+            "default": ""
+          },
+          "body_md": {
+            "type": "string",
+            "title": "Body Md"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "project",
+          "in_inbox",
+          "updated_at",
+          "excerpt",
+          "body_md",
+          "created_at"
+        ],
+        "title": "NoteDetail"
+      },
+      "NoteSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "project",
+          "in_inbox",
+          "updated_at",
+          "excerpt"
+        ],
+        "title": "NoteSummary"
+      },
+      "NoteUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "body_md": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Md"
+          },
+          "in_inbox": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Inbox"
+          }
+        },
+        "type": "object",
+        "title": "NoteUpdate",
+        "description": "Only the fields sent are changed. project_id: null removes it from its project."
       },
       "ProjectCreate": {
         "properties": {

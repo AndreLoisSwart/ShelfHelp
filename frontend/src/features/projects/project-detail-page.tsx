@@ -1,4 +1,4 @@
-import { FolderKanban, NotebookPen, Package, Paperclip, Trash2 } from 'lucide-react'
+import { FolderKanban, Paperclip, Plus, Trash2 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router'
 import { errorMessage } from '@/api/fetcher'
 import type { ProjectUpdate } from '@/api/generated/model'
@@ -11,15 +11,19 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { DetailLayout } from '@/components/detail-layout'
 import { EditableText } from '@/components/editable-text'
 import { EmptyState } from '@/components/empty-state'
+import { LazyMarkdownEditor } from '@/components/lazy-markdown-editor'
 import { NotFound } from '@/components/not-found'
 import { ReadinessBar } from '@/components/readiness-bar'
 import { Button } from '@/components/ui/button'
+import { NewNoteDialog } from '@/features/notes/new-note-dialog'
+import { NoNotesYet, NotesList } from '@/features/notes/notes-list'
 import { TagEditor } from '@/features/tags/tag-editor'
 import { formatDate, timeAgo } from '@/lib/format'
+import { useAutosave } from '@/lib/use-autosave'
 import { ProjectItemsTab } from './project-items-tab'
 import { ProjectStatusToggle } from './project-status-toggle'
 
-const comingSoon = (icon: typeof Package, description: string) => (
+const comingSoon = (icon: typeof Paperclip, description: string) => (
   <EmptyState icon={icon} title="Nothing here yet" description={description} />
 )
 
@@ -29,6 +33,9 @@ export function ProjectDetailPage() {
   const { data: project, error, isPending } = useGetProject(projectId)
   const updateProject = useUpdateProject()
   const deleteProject = useDeleteProject()
+  const description = useAutosave((description_md) =>
+    updateProject.mutate({ projectId, data: { description_md } }),
+  )
 
   if (isPending) return null
   if (error) {
@@ -55,7 +62,7 @@ export function ProjectDetailPage() {
         />
         <ConfirmDialog
           title={`Delete ${project.name}?`}
-          description="This can't be undone."
+          description="Its notes are kept, without a project. Its item links are removed."
           onConfirm={() =>
             deleteProject.mutate(
               { projectId },
@@ -106,13 +113,13 @@ export function ProjectDetailPage() {
               </div>
               <div>
                 <h2 className="mb-2 text-sm font-medium">Description</h2>
-                <EditableText
-                  multiline
+                <LazyMarkdownEditor
+                  key={project.id}
                   value={project.description_md}
-                  onSave={(description_md) => save({ description_md })}
+                  onChange={description.schedule}
+                  onBlur={description.flush}
                   aria-label="Description"
-                  placeholder="What is this project about? Markdown works here."
-                  className="-ml-2 min-h-32 resize-y text-sm"
+                  placeholder="What is this project about?"
                 />
               </div>
             </div>
@@ -121,7 +128,26 @@ export function ProjectDetailPage() {
         {
           value: 'notes',
           label: 'Notes',
-          content: comingSoon(NotebookPen, 'Project notes arrive in build step 6.'),
+          content: (
+            <div className="grid gap-4">
+              <NewNoteDialog
+                projectId={projectId}
+                trigger={
+                  <Button variant="outline" className="w-fit">
+                    <Plus />
+                    New note
+                  </Button>
+                }
+              />
+              <NotesList
+                params={{ project_id: projectId }}
+                showProject={false}
+                empty={
+                  <NoNotesYet description="Plans, measurements and checklists for this project." />
+                }
+              />
+            </div>
+          ),
         },
         {
           value: 'items',
