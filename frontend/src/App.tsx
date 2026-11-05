@@ -1,16 +1,26 @@
+import { lazy } from 'react'
 import { Route, Routes } from 'react-router'
 import { AppShell } from '@/components/layout/app-shell'
 import { NotFound } from '@/components/not-found'
 import { DashboardPage } from '@/features/dashboard/dashboard-page'
-import { InboxPage } from '@/features/inbox/inbox-page'
-import { ItemDetailPage } from '@/features/items/item-detail-page'
-import { ItemsPage } from '@/features/items/items-page'
-import { NoteEditorPage } from '@/features/notes/note-editor-page'
-import { NotesPage } from '@/features/notes/notes-page'
-import { ProjectDetailPage } from '@/features/projects/project-detail-page'
-import { ProjectsPage } from '@/features/projects/projects-page'
-import { SettingsPage } from '@/features/settings/settings-page'
-import { ShoppingPage } from '@/features/shopping/shopping-page'
+
+// Home loads with the app; other pages load when first opened, so the first visit
+// downloads less (it matters on mobile data over the VPN).
+const page = <K extends string>(load: () => Promise<Record<K, React.ComponentType>>, name: K) =>
+  lazy(() => load().then((module) => ({ default: module[name] })))
+
+const InboxPage = page(() => import('@/features/inbox/inbox-page'), 'InboxPage')
+const ItemDetailPage = page(() => import('@/features/items/item-detail-page'), 'ItemDetailPage')
+const ItemsPage = page(() => import('@/features/items/items-page'), 'ItemsPage')
+const NoteEditorPage = page(() => import('@/features/notes/note-editor-page'), 'NoteEditorPage')
+const NotesPage = page(() => import('@/features/notes/notes-page'), 'NotesPage')
+const ProjectDetailPage = page(
+  () => import('@/features/projects/project-detail-page'),
+  'ProjectDetailPage',
+)
+const ProjectsPage = page(() => import('@/features/projects/projects-page'), 'ProjectsPage')
+const SettingsPage = page(() => import('@/features/settings/settings-page'), 'SettingsPage')
+const ShoppingPage = page(() => import('@/features/shopping/shopping-page'), 'ShoppingPage')
 
 export default function App() {
   return (

@@ -24,6 +24,7 @@ import { ProjectStatusToggle } from '@/features/projects/project-status-toggle'
 import { TagEditor } from '@/features/tags/tag-editor'
 import { errorMessage } from '@/api/fetcher'
 import { useQuickAdd } from './use-quick-add'
+import { ListSkeleton } from '@/components/loading'
 
 // Saves live in the page, not the cards: Done removes the card, and Undo must still work.
 type Save<T> = (data: T, onSuccess?: () => void) => void
@@ -155,7 +156,14 @@ export function InboxPage() {
       description="Quick-added records waiting to be sorted. Fill in what you know, then tap Done."
     />
   )
-  if (isPending) return header
+  if (isPending) {
+    return (
+      <>
+        {header}
+        <ListSkeleton rows={3} />
+      </>
+    )
+  }
   if (error) {
     return (
       <>

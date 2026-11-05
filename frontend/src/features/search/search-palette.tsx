@@ -16,6 +16,7 @@ import {
 import { home, items, notes, projects, settings, shopping } from '@/components/layout/nav'
 import { useQuickAdd } from '@/features/inbox/use-quick-add'
 import type { Status } from '@/lib/statuses'
+import { useBackToClose } from '@/lib/use-back-to-close'
 import { splitMarks } from './marks'
 
 const PAGES = [
@@ -90,9 +91,10 @@ export function SearchPalette({ open, onOpenChange }: Props) {
     onOpenChange(next)
     if (!next) setQuery('')
   }
+  const afterClose = useBackToClose(open, () => changeOpen(false))
   const go = (to: string) => {
     changeOpen(false)
-    navigate(to)
+    afterClose(() => navigate(to))
   }
 
   const results = query.trim() && q ? data : undefined
@@ -136,7 +138,7 @@ export function SearchPalette({ open, onOpenChange }: Props) {
                   value="quick-add"
                   onSelect={() => {
                     changeOpen(false)
-                    quickAdd()
+                    afterClose(quickAdd)
                   }}
                 >
                   <Plus />

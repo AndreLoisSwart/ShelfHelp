@@ -10,6 +10,8 @@ import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useLocationTree } from '@/features/locations/location-tree'
+import { LoadError } from '@/components/load-error'
+import { ListSkeleton } from '@/components/loading'
 
 const tabValue = (list: ShoppingList) => (list.zone ? String(list.zone.id) : 'unassigned')
 
@@ -48,7 +50,7 @@ function ShoppingRow({ item, onGotIt, busy }: RowProps) {
 }
 
 export function ShoppingPage() {
-  const { data: lists, isPending } = useGetShoppingLists()
+  const { data: lists, isPending, error, refetch } = useGetShoppingLists()
   const [params, setParams] = useSearchParams()
   // Here rather than in the row: the row disappears once its item is got, and Undo
   // must still work after that.
@@ -72,17 +74,33 @@ export function ShoppingPage() {
     )
   }
 
-  if (isPending || !lists) return <PageHeader title="Shopping" />
+  if (isPending || error) {
+    return (
+      <>
+        <PageHeader title="Shopping" />
+        {isPending ? (
+          <ListSkeleton />
+        ) : (
+          <LoadError what="the shopping list" error={error} onRetry={refetch} />
+        )}
+      </>
+    )
+  }
 
   if (lists.length === 0) {
     return (
       <>
         <PageHeader title="Shopping" />
+        {/* Every zone gets a list, even an empty one, so this means there are no zones. */}
         <EmptyState
           icon={ShoppingCart}
           title="Nothing to buy"
-          description="Items marked low, out or need to get show up here, by zone."
-        />
+          description="Items marked low, out or need to get show up here, with a list per zone. Add zones such as Home and Workshop in Settings."
+        >
+          <Button variant="outline" asChild>
+            <Link to="/settings">Open Settings</Link>
+          </Button>
+        </EmptyState>
       </>
     )
   }

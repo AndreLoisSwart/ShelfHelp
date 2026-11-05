@@ -1,4 +1,4 @@
-import { ArrowRight, FolderKanban, House } from 'lucide-react'
+import { ArrowRight, FolderKanban, House, MapPin, Plus } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { errorMessage } from '@/api/fetcher'
@@ -15,6 +15,8 @@ import { ItemRow } from '@/features/items/item-row'
 import { useLocationTree } from '@/features/locations/location-tree'
 import { daysAsWeeks, durationSince, timeAgo } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { useQuickAdd } from '@/features/inbox/use-quick-add'
+import { CardsSkeleton } from '@/components/loading'
 
 type SectionProps = {
   title: string
@@ -172,10 +174,49 @@ function Stale({ dashboard }: { dashboard: Dashboard }) {
   )
 }
 
+/** For a fresh install: zones come first, since items and shopping lists hang off them. */
+function GettingStarted() {
+  const { roots, isPending } = useLocationTree()
+  const quickAdd = useQuickAdd()
+  if (isPending || roots.length > 0) return null
+  return (
+    <section className="rounded-lg border bg-card p-4">
+      <h2 className="font-semibold">Getting started</h2>
+      <ol className="mt-2 grid list-decimal gap-1 pl-5 text-sm text-muted-foreground">
+        <li>
+          Add your zones, the top-level places things live, such as Home and Workshop. Each gets its
+          own shopping list.
+        </li>
+        <li>Add items and projects, or capture anything quickly with the + button.</li>
+        <li>Link items to projects to see how ready each project is.</li>
+      </ol>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button asChild>
+          <Link to="/settings">
+            <MapPin />
+            Add zones
+          </Link>
+        </Button>
+        <Button variant="outline" onClick={quickAdd}>
+          <Plus />
+          Quick add
+        </Button>
+      </div>
+    </section>
+  )
+}
+
 export function DashboardPage() {
   const { data: dashboard, error, isPending } = useGetDashboard()
   const header = <PageHeader title="Home" />
-  if (isPending) return header
+  if (isPending) {
+    return (
+      <>
+        {header}
+        <CardsSkeleton />
+      </>
+    )
+  }
   if (error) {
     return (
       <>
@@ -192,6 +233,7 @@ export function DashboardPage() {
     <>
       {header}
       <div className="grid gap-10">
+        <GettingStarted />
         <ActiveProjects dashboard={dashboard} />
         <div className="grid gap-10 md:grid-cols-2 md:gap-8">
           <RunningLow dashboard={dashboard} />

@@ -14,6 +14,8 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useLocationTree } from '@/features/locations/location-tree'
 import { ItemRow } from '@/features/items/item-row'
 import { REQUIREMENT_LABELS } from '@/lib/statuses'
+import { LoadError } from '@/components/load-error'
+import { ListSkeleton } from '@/components/loading'
 
 function LinkedItem({ projectId, link }: { projectId: number; link: ProjectItemOut }) {
   const linkItem = useLinkProjectItem()
@@ -76,7 +78,7 @@ function LinkedItem({ projectId, link }: { projectId: number; link: ProjectItemO
 }
 
 export function ProjectItemsTab({ projectId }: { projectId: number }) {
-  const { data: links, isPending } = useListProjectItems(projectId)
+  const { data: links, isPending, error, refetch } = useListProjectItems(projectId)
   const { data: allItems = [] } = useListItems()
   const createItem = useCreateItem()
   const linkItem = useLinkProjectItem()
@@ -110,7 +112,11 @@ export function ProjectItemsTab({ projectId }: { projectId: number }) {
         }
         className="w-full sm:w-80"
       />
-      {isPending ? null : groups.length === 0 ? (
+      {isPending ? (
+        <ListSkeleton rows={3} />
+      ) : error ? (
+        <LoadError what="linked items" error={error} onRetry={refetch} />
+      ) : groups.length === 0 ? (
         <EmptyState
           icon={Package}
           title="No items linked yet"

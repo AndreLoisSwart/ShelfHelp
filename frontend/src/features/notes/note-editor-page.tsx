@@ -15,6 +15,7 @@ import { FilesAndLinks } from '@/features/attachments/files-and-links'
 import { InboxNotice } from '@/features/inbox/inbox-notice'
 import { formatDate } from '@/lib/format'
 import { useAutosave } from '@/lib/use-autosave'
+import { DetailSkeleton } from '@/components/loading'
 
 export function NoteEditorPage() {
   const noteId = Number(useParams().id)
@@ -26,7 +27,7 @@ export function NoteEditorPage() {
   const save = (data: NoteUpdate) => updateNote.mutate({ noteId, data })
   const body = useAutosave((body_md) => save({ body_md }))
 
-  if (isPending) return null
+  if (isPending) return <DetailSkeleton />
   if (error) {
     if (error.status === 404 || error.status === 422) return <NotFound />
     return (

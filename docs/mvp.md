@@ -41,8 +41,9 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [x] Dashboard: active projects and next steps, running low, stale projects
 
 **Platform**
-- [ ] HA add-on packaging, Ingress-compatible, data in `/data`
-- [ ] Responsive layout (desktop sidebar, mobile bottom bar)
+- [x] HA add-on packaging, Ingress-compatible, data in `/data`
+- [x] Responsive layout (desktop sidebar, mobile bottom bar)
+- [x] Polish: error handling, loading states, mobile pass, first-use guidance, app icon
 
 ## Build order
 

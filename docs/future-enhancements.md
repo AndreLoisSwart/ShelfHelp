@@ -1,6 +1,6 @@
 # Future enhancements
 
-Difficulty is rated 1 (trivial) to 5 (major project), as assessed on 2026-11-04.
+Difficulty is rated 1 (trivial) to 5 (major project), as assessed on 2026-11-04 and 2026-11-05.
 
 ## V2 (decided)
 
@@ -33,39 +33,62 @@ Three levels, cheapest first:
 
 Candidates raised during design. None are committed. Each needs discussion before it is moved into a version.
 
-### MCP server (difficulty 2–3, plus auth)
+### MCP server (difficulty 2–3 for phase 1, 4 for phase 2)
 
-An MCP layer so AI assistants can do roughly what the app can: search, read and edit projects, items and notes, link items, sort the inbox, read the shopping list and dashboard, add links.
+An MCP layer so Claude can do roughly what the app can: search, read and edit projects, items and notes, link items, sort the inbox, read the shopping list and dashboard, add links. The goal includes using it from the Claude mobile app in the workshop, where there is no computer.
+
+**Constraint: no API billing.** It must work through the Claude subscription (Claude Code, Claude Desktop, the Claude mobile app). That rules out building an assistant into Shelf-help or using Home Assistant's Anthropic voice integration, since both run on a pay-per-use API key.
 
 **Design:**
 - An MCP endpoint inside the add-on (official Python MCP SDK, streamable HTTP at `/mcp`).
 - Its tools call the existing service layer, so every rule (last touched, inbox flag, readiness, owner check) applies and nothing is duplicated.
 - Hand-written tools (about 15) rather than tools generated from the OpenAPI spec: clearly named, task-shaped tools work much better for an assistant.
 - Deletes left out at first, or marked destructive so the client asks before each one. Attachment upload left for later.
+- **Login is its own layer in front of `/mcp`, separate from the tools.** The tools never know how a request was authenticated, so phase 2 adds a second kind of login without touching them.
 
-**Auth comes first, and can be built before MCP.** Today the app is protected only by HA Ingress, and the direct port 8099 is disabled because it has no auth at all. MCP clients can't log in through Ingress.
-
-Options, in order of effort:
-
-1. **Token on the direct port (recommended first step).**
-   - Requests arriving through Ingress come from the Supervisor's gateway address (`172.30.32.2`) and are already authenticated by HA. Anything else must carry a bearer token, and may only reach `/mcp`. Everything else on the direct port gets 401.
-   - This also closes today's gap where enabling port 8099 exposes the whole app without auth.
-   - The token is long and random, generated on first start and kept in `/data`. It is shown and regenerated on the Settings page, which itself is only reachable through Ingress.
-   - Traffic on the LAN is plain HTTP, so the token is visible to anything sniffing the LAN. Over the VPN it is encrypted by the tunnel. Acceptable for a trusted network; TLS on the direct port is a later option.
-2. **A separate MCP-only port.** Same token, but the app UI never listens outside Ingress. Slightly cleaner, one more port to manage.
-3. **Public exposure with OAuth (only needed for the Claude mobile app and claude.ai).** See below.
-
-**Which Claude clients can reach it:**
+**Which Claude clients can reach what:**
 
 | Client | How it connects | Works on LAN/VPN only? |
 |---|---|---|
 | Claude Code | Connects to the MCP URL directly from the machine (`--transport http` with an `Authorization` header) | Yes |
 | Claude Desktop | A local MCP server in its config file runs on the machine; a small bridge (e.g. `mcp-remote`) forwards to `/mcp` with the token | Yes |
-| Claude mobile app, claude.ai | Custom connectors are called **from Anthropic's cloud**, not from the phone | **No.** Being on the VPN doesn't help: the server must be reachable from the internet, over HTTPS, normally with OAuth |
+| Claude mobile app, claude.ai | Custom connectors are called **from Anthropic's cloud**, not from the phone | **No.** The server must be reachable from the internet, over HTTPS, with OAuth |
 
-Mobile would therefore mean exposing `/mcp` publicly (Cloudflare Tunnel, Nabu Casa or similar), with HTTPS and an OAuth flow, and only `/mcp` reachable. That conflicts with the current "nothing exposed to the internet" principle, so it is a separate decision (difficulty 4).
+The existing WireGuard VPN can't carry the mobile app's traffic: only your own devices join it, and Anthropic's servers can't. Mobile needs a separate public entry point for `/mcp` only, while WireGuard carries on as it is.
 
-**Recommendation:** build option 1, then MCP for Claude Code and Desktop. Decide on public exposure for mobile afterwards.
+**Security ranking (effort aside):**
+
+| Option | Who can reach it | Login |
+|---|---|---|
+| Token, LAN/VPN only | Your network and VPN | Long random secret |
+| Public, OAuth | Anyone on the internet | Strong (short-lived tokens, PKCE) |
+| Public, OAuth plus allowlist of Anthropic's published connector IP addresses | Only Anthropic's servers | Strong |
+
+Not being on the internet is the most secure. OAuth is the right login *if* public, but it doesn't make public as safe as private: bots can find and probe a public endpoint, so a bug in login, the MCP library or the app matters more.
+
+#### Phase 1: Claude Code and Desktop on LAN/VPN (decided order, not yet scheduled)
+
+1. **Token auth on the direct port.**
+   - Requests arriving through Ingress come from the Supervisor's gateway address (`172.30.32.2`) and are already authenticated by HA. Anything else must carry a bearer token, and may only reach `/mcp`. Everything else on the direct port gets 401.
+   - This also closes today's gap where enabling port 8099 exposes the whole app without auth.
+   - The token is long and random, generated on first start and kept in `/data`. It is shown and regenerated on the Settings page, which itself is only reachable through Ingress.
+   - On the LAN the token travels as plain HTTP; over the VPN the tunnel encrypts it. Acceptable for a trusted network.
+2. **The MCP server** with its tools.
+3. **Connect Claude Code** directly, and **Claude Desktop** through the local bridge.
+
+Use phase 1 for a while before deciding on phase 2. If it's mostly used at the desk, phase 2 can wait.
+
+#### Phase 2: the Claude mobile app (after phase 1 works)
+
+1. **OAuth on `/mcp`**, next to the token: an OAuth 2.1 flow with PKCE, as the MCP authorization spec and Claude's custom connectors expect. The tools stay unchanged.
+2. **A public entry point for `/mcp` only.** Options:
+   - **Cloudflare Tunnel (preferred):** the community "Cloudflared" HA add-on connects outward, so no router port is opened, and Cloudflare provides HTTPS. Needs a domain on Cloudflare (a cheap one works).
+   - **Tailscale Funnel:** similar, with a free `*.ts.net` address and no domain needed.
+   - **Router port forward plus a reverse proxy with a certificate:** puts the router directly on the internet. Least preferred.
+3. **Lock it down in layers:** only `/mcp` routed; only Anthropic's published connector IP addresses allowed (check the current list); OAuth required.
+4. **Add it in the Claude app** as a custom connector.
+
+Phase 2 gives up the "nothing exposed to the internet" principle in `project-overview.md` for this one endpoint, so it needs an explicit decision, and that doc updated, when it happens.
 
 ### Barcode scanning and product lookup (difficulty 2 to scan, lookup coverage uncertain)
 

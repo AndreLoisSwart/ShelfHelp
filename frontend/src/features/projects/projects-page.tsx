@@ -26,6 +26,8 @@ import { usePersistentState } from '@/lib/use-persistent-state'
 import { NewProjectDialog } from './new-project-dialog'
 import { ProjectBoard } from './project-board'
 import { ProjectCard } from './project-card'
+import { LoadError } from '@/components/load-error'
+import { CardsSkeleton } from '@/components/loading'
 
 const VIEWS = ['board', 'list'] as const
 
@@ -69,7 +71,7 @@ export function ProjectsPage() {
   }
 
   const listParams = { tag_id: tagId !== undefined ? [tagId] : undefined }
-  const { data: projects, isPending } = useListProjects(listParams)
+  const { data: projects, isPending, error, refetch } = useListProjects(listParams)
   const { data: tags = [] } = useListTags()
 
   const shown = (projects ?? []).filter((project) =>
@@ -154,7 +156,11 @@ export function ProjectsPage() {
         )}
       </FilterBar>
 
-      {isPending ? null : projects?.length === 0 && !filtered ? (
+      {isPending ? (
+        <CardsSkeleton />
+      ) : error ? (
+        <LoadError what="projects" error={error} onRetry={refetch} />
+      ) : projects?.length === 0 && !filtered ? (
         <EmptyState
           icon={FolderKanban}
           title="No projects yet"

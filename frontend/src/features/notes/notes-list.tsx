@@ -5,6 +5,8 @@ import type { ListNotesParams, NoteSummary } from '@/api/generated/model'
 import { useListNotes } from '@/api/generated/notes/notes'
 import { EmptyState } from '@/components/empty-state'
 import { timeAgo } from '@/lib/format'
+import { LoadError } from '@/components/load-error'
+import { ListSkeleton } from '@/components/loading'
 
 type Props = {
   params?: ListNotesParams
@@ -30,8 +32,9 @@ function NoteRow({ note, showProject }: { note: NoteSummary; showProject: boolea
 
 /** Notes, most recently updated first. Used by the Notes page and the project Notes tab. */
 export function NotesList({ params, showProject = true, empty }: Props) {
-  const { data: notes, isPending } = useListNotes(params)
-  if (isPending) return null
+  const { data: notes, isPending, error, refetch } = useListNotes(params)
+  if (isPending) return <ListSkeleton />
+  if (error) return <LoadError what="notes" error={error} onRetry={refetch} />
   if (!notes?.length) return empty
   return (
     <div className="-mx-3 divide-y">

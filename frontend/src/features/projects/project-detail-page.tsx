@@ -24,6 +24,7 @@ import { formatDate, timeAgo } from '@/lib/format'
 import { useAutosave } from '@/lib/use-autosave'
 import { ProjectItemsTab } from './project-items-tab'
 import { ProjectStatusToggle } from './project-status-toggle'
+import { DetailSkeleton } from '@/components/loading'
 
 export function ProjectDetailPage() {
   const projectId = Number(useParams().id)
@@ -35,7 +36,7 @@ export function ProjectDetailPage() {
     updateProject.mutate({ projectId, data: { description_md } }),
   )
 
-  if (isPending) return null
+  if (isPending) return <DetailSkeleton />
   if (error) {
     if (error.status === 404 || error.status === 422) return <NotFound />
     return (

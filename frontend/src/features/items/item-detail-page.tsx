@@ -21,6 +21,7 @@ import { ItemRow } from './item-row'
 import { ItemStatusToggle } from './item-status-toggle'
 import { subtreeIds } from './item-tree'
 import { NewItemDialog } from './new-item-dialog'
+import { DetailSkeleton } from '@/components/loading'
 
 function Field({
   label,
@@ -50,7 +51,7 @@ export function ItemDetailPage() {
   const updateItem = useUpdateItem()
   const deleteItem = useDeleteItem()
 
-  if (isPending) return null
+  if (isPending) return <DetailSkeleton />
   if (error) {
     if (error.status === 404 || error.status === 422) return <NotFound />
     return (

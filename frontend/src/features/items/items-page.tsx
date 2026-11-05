@@ -15,6 +15,8 @@ import { STATUS_ACTIVE_TONES, ITEM_STATUS_LABELS, ITEM_STATUSES } from '@/lib/st
 import { ItemRow } from './item-row'
 import { nestItems } from './item-tree'
 import { NewItemDialog } from './new-item-dialog'
+import { LoadError } from '@/components/load-error'
+import { ListSkeleton } from '@/components/loading'
 
 const newItemButton = (
   <Button>
@@ -38,7 +40,12 @@ export function ItemsPage() {
     setParams(next, { replace: true })
   }
 
-  const { data: items, isPending } = useListItems({
+  const {
+    data: items,
+    isPending,
+    error,
+    refetch,
+  } = useListItems({
     location_id: locationId,
     status: statuses.length ? statuses : undefined,
     tag_id: tagId !== undefined ? [tagId] : undefined,
@@ -89,7 +96,11 @@ export function ItemsPage() {
         )}
       </FilterBar>
 
-      {isPending ? null : items?.length ? (
+      {isPending ? (
+        <ListSkeleton />
+      ) : error ? (
+        <LoadError what="items" error={error} onRetry={refetch} />
+      ) : items?.length ? (
         <div className="-mx-3 divide-y">
           {nestItems(items).map(({ item, depth }) => (
             <ItemRow

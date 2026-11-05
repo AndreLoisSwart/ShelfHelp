@@ -31,9 +31,13 @@ def build_app(upstream: str) -> Starlette:
             target += "?" + request.url.query
         headers = {k: v for k, v in request.headers.items() if k not in DROP_HEADERS}
         headers["X-Ingress-Path"] = PREFIX
-        res = await client.request(
-            request.method, target, headers=headers, content=await request.body()
-        )
+        try:
+            res = await client.request(
+                request.method, target, headers=headers, content=await request.body()
+            )
+        except httpx2.TransportError:
+            # What HA answers while the add-on is down or restarting.
+            return Response("Bad Gateway", 502)
         out = {k: v for k, v in res.headers.items() if k not in DROP_HEADERS}
         return Response(res.content, res.status_code, out)
 

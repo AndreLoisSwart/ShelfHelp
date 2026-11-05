@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { ITEM_STATUS_LABELS, STATUS_ACTIVE_TONES } from '@/lib/statuses'
+import { useBackToClose } from '@/lib/use-back-to-close'
 import { usePersistentState } from '@/lib/use-persistent-state'
 import { QuickAddContext } from './use-quick-add'
 
@@ -56,6 +57,7 @@ export function QuickAddSheet({ open, onOpenChange }: Props) {
   const [name, setName] = useState('')
   const [status, setStatus] = useState<ItemStatus>('have')
   const pending = createItem.isPending || createNote.isPending || createProject.isPending
+  useBackToClose(open, () => onOpenChange(false))
 
   const changeOpen = (next: boolean) => {
     onOpenChange(next)
@@ -67,6 +69,9 @@ export function QuickAddSheet({ open, onOpenChange }: Props) {
 
   const added = (path: string) => {
     onOpenChange(false)
+    // Opened from outside (not through changeOpen), so clear it for next time here.
+    setName('')
+    setStatus('have')
     toast.success('Added to the inbox', {
       action: { label: 'Open', onClick: () => navigate(path) },
     })

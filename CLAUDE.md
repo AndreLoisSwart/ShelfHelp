@@ -53,5 +53,7 @@ Notes:
 - `tests/test_db.py` fails if models change without a matching migration.
 - `npm run gen:api` exports the spec to `frontend/openapi.json` and regenerates `frontend/src/api/generated/`. Both are committed; never edit them by hand.
 - Add shadcn components with `cd frontend && npx shadcn@latest add <name>`.
+- The backend reads `frontend/dist/index.html` once at startup: restart it after rebuilding the frontend, or the page asks for old asset files and loads blank.
+- The Ingress stand-in answers 502 when the backend is down, as HA does, so the connection banner can be tested by stopping the backend.
 
 **Deploying:** the repo root is the add-on folder (`config.yaml` and `Dockerfile` live there). Clone it into `/addons` on HAOS, then install it from Settings → Add-ons → Add-on store → Local add-ons. To update, pull, bump `version` in `config.yaml`, and rebuild from the add-on page.

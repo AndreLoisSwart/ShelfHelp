@@ -49,6 +49,15 @@ No inbox section, because the inbox icon already shows the count. On mobile the 
 
 - **Quick-add:** a dialog on desktop and a bottom sheet on mobile, opened from the Add button (desktop), the bottom bar's **+** (mobile) or the search palette. Choose the type (Item / Note / Project, the last one used is remembered per device), enter a name, and for an item pick Have or Need to get. Enter saves to the inbox, closes, and shows a toast with an Open button; it never navigates away by itself.
 - **Search:** a command palette (Ctrl+K or Cmd+K, or the search icon). Results are grouped into projects, items and notes, up to 5 each, with matched words highlighted and a status badge for projects and items. Selecting one navigates to it. With nothing typed it lists the pages and Quick add.
+- **Back button:** while quick-add or search is open, the phone's back button closes it instead of leaving the page behind (`lib/use-back-to-close.ts`, which adds a history entry while the overlay is open).
+
+## Loading, errors and first use
+
+- **Loading:** pages show placeholder shapes (`components/loading.tsx`) rather than nothing, since over the VPN on mobile data loads can be slow. Pages other than Home are loaded when first opened, to keep the first download small.
+- **A list that fails to load** says so, with Try again (`LoadError`), so it is never mistaken for an empty list.
+- **Lost connection** (add-on restarting, VPN dropped; Ingress then answers 502): a "Can't reach Shelf-help. Retrying…" banner under the top bar checks every 5 seconds and refreshes all data once it's back. A change made meanwhile shows "Can't reach Shelf-help, so that change wasn't saved".
+- **A crash while drawing a page** shows "Something went wrong on this page" with Reload and Go home, instead of a blank app. It clears when you move to another page. A page that can't be fetched (just updated, or unreachable) says so.
+- **First use:** with no zones yet, Home shows a Getting started card (add zones, quick add, link items), and the shopping page points to Settings.
 
 ## Reusable components
 
@@ -79,6 +88,7 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 
 ## Visual style
 
+- **Icon:** a books-on-a-shelf mark (Lucide `library-big`) in white on the accent colour. `icon.png` (128×128) and `logo.png` (250×100) at the repo root are what HA shows in the add-on store; `frontend/public/` holds the favicon and home-screen icon; the HA sidebar uses `mdi:bookshelf`.
 - **Base:** shadcn neutral theme (Nova preset, Geist font, lucide icons) with one accent colour: **muted blue**.
 - **Light and dark:** follows the device's colour scheme. There is no manual toggle.
 - **Colour:** status colours are the only other colour, so "Out", "Need" and stale projects stand out. Tokens are defined in `frontend/src/index.css` (`bg-status-green`, `text-status-red`, etc.):

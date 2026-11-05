@@ -14,9 +14,24 @@ export class ApiError extends Error {
 export const apiFetch = async <T>(url: string, options: RequestInit): Promise<T> => {
   const res = await fetch(apiUrl(url), options)
   const text = await res.text()
-  const body = text ? JSON.parse(text) : undefined
-  if (!res.ok) throw new ApiError(res.status, body)
-  return body as T
+  if (!res.ok) throw new ApiError(res.status, parseJson(text))
+  return (text ? JSON.parse(text) : undefined) as T
+}
+
+// Error pages from Ingress or a proxy are HTML, not JSON.
+function parseJson(text: string): unknown {
+  try {
+    return text ? JSON.parse(text) : undefined
+  } catch {
+    return text
+  }
+}
+
+/** The request never reached the app: no network, or Ingress couldn't reach the add-on
+ * (e.g. while it restarts). Not an error in the request itself. */
+export function isConnectionError(error: unknown): boolean {
+  if (error instanceof ApiError) return [502, 503, 504].includes(error.status)
+  return error instanceof TypeError // what fetch throws when the network fails
 }
 
 // Picked up by orval as the error type of every generated hook. It must be generic.
@@ -25,6 +40,7 @@ export type ErrorType<_Error> = ApiError
 
 /** A message fit to show the user, e.g. in a toast. */
 export function errorMessage(error: unknown): string {
+  if (isConnectionError(error)) return "Can't reach Shelf-help"
   if (error instanceof ApiError) {
     const detail = (error.body as { detail?: unknown } | undefined)?.detail
     if (typeof detail === 'string') return detail
@@ -35,5 +51,5 @@ export function errorMessage(error: unknown): string {
     if (error.status === 422) return 'Some of the values are not valid'
     return `Something went wrong (${error.status})`
   }
-  return 'Could not reach Shelf-help'
+  return 'Something went wrong'
 }
