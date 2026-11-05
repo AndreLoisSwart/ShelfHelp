@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     frontend_dist: Path = REPO_DIR / "frontend" / "dist"
     # Keeps a mistaken upload from bloating every HA backup.
     max_upload_mb: int = 50
+    # Addresses or networks (CIDR) whose requests are trusted as already logged in
+    # (see core/access.py).
+    # The add-on narrows this to HA's Ingress gateway; loopback is for local dev, where
+    # Vite and the Ingress stand-in connect from this machine.
+    trusted_clients: list[str] = ["172.30.32.2", "127.0.0.1", "::1"]
 
     @property
     def database_url(self) -> str:

@@ -27,7 +27,7 @@
 | `/notes/:id` | Note editor | Title, project assignment, markdown editor, links and attachments. Saves automatically shortly after typing stops and when leaving the page, with a Saving…/Saved indicator. Deleting goes to the project's Notes tab, or to Notes |
 | `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Opens on the first zone with something to get. Rows show where in the zone the item lives and which projects it's for. Each row has a one-tap "Got it" (sets status to `have`) with an 8-second Undo. Tapping the row opens Item details |
 | `/inbox` | Inbox | Records with `in_inbox`, grouped into items, projects and notes, newest first. Inline fields to sort each one (items: status, location, tags; projects: status, tags; notes: project) and a "Done" button that clears the flag, with Undo. Detail pages of inbox records show an "In the inbox" notice with its own Done button |
-| `/settings` | Settings | Location tree editor, tag management, and when a project counts as stale (1 to 12 weeks). Later: export, backups |
+| `/settings` | Settings | Location tree editor, tag management, when a project counts as stale (1 to 12 weeks), and Claude (MCP): the token (hidden until shown, copy, make new) and ready-made Claude Code and Claude Desktop setup for a given HA address and port. Later: export, backups |
 
 There is deliberately **no shopping-list item detail page**. Shopping rows are items, so they open Item details.
 

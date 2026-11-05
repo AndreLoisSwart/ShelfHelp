@@ -6,6 +6,8 @@ from app.main import create_app
 
 INDEX = "<!doctype html><html><head><title>t</title></head><body></body></html>"
 PREFIX = "/api/hassio_ingress/abc123"
+# As if through Ingress (see core/access.py).
+TRUSTED = ("127.0.0.1", 50000)
 
 
 @pytest.fixture
@@ -15,7 +17,7 @@ def client(tmp_path, monkeypatch):
     (tmp_path / "favicon.svg").write_text("<svg/>")
     (tmp_path / "index.html").write_text(INDEX)
     monkeypatch.setattr(config.settings, "frontend_dist", tmp_path)
-    return TestClient(create_app())
+    return TestClient(create_app(), client=TRUSTED)
 
 
 def test_health(client):
@@ -61,6 +63,6 @@ def test_unsafe_ingress_header_is_ignored(client):
 
 def test_api_only_without_built_frontend(tmp_path, monkeypatch):
     monkeypatch.setattr(config.settings, "frontend_dist", tmp_path / "missing")
-    client = TestClient(create_app())
+    client = TestClient(create_app(), client=TRUSTED)
     assert client.get("/api/health").status_code == 200
     assert client.get("/").status_code == 404

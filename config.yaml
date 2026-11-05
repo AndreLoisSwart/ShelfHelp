@@ -1,7 +1,7 @@
 # Home Assistant add-on config. Lives at the repo root because HA uses this
 # folder as the Docker build context, and the image needs backend/ and frontend/.
 name: Shelf-help
-version: "1.0.0"
+version: "1.1.0"
 slug: shelf_help
 description: Personal project, item and notes manager
 url: https://github.com/AndreLoisSwart/ShelfHelp
@@ -15,9 +15,10 @@ ingress: true
 ingress_port: 8099
 panel_icon: mdi:bookshelf
 panel_title: Shelf-help
-# Direct LAN access, disabled by default: it bypasses HA authentication.
-# Enable it by setting a host port in the add-on's Network settings.
+# Direct LAN access for Claude (MCP), disabled by default. Enable it by setting a host
+# port in the add-on's Network settings. It serves only /mcp, with the token from
+# Settings; the app itself stays behind Ingress.
 ports:
   8099/tcp: null
 ports_description:
-  8099/tcp: Direct web access (no HA login)
+  8099/tcp: Claude MCP access (token required, /mcp only)

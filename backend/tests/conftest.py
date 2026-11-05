@@ -26,4 +26,5 @@ def api(tmp_path) -> TestClient:
 
     app = create_app()
     app.dependency_overrides[get_session] = session_override
-    return TestClient(app)
+    # As if through Ingress: a trusted address (see core/access.py).
+    return TestClient(app, client=("127.0.0.1", 50000))

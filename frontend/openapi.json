@@ -1737,6 +1737,47 @@
           }
         }
       }
+    },
+    "/api/mcp/token": {
+      "get": {
+        "tags": [
+          "mcp"
+        ],
+        "summary": "Get Mcp Token",
+        "operationId": "get_mcp_token",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpToken"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "mcp"
+        ],
+        "summary": "Regenerate Mcp Token",
+        "description": "Replaces the token; clients using the old one stop working.",
+        "operationId": "regenerate_mcp_token",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/McpToken"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2488,6 +2529,19 @@
         "type": "object",
         "title": "LocationUpdate",
         "description": "Only the fields sent are changed. parent_id: null moves it to the top level."
+      },
+      "McpToken": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "McpToken"
       },
       "NoteCreate": {
         "properties": {

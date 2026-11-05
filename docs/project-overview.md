@@ -42,7 +42,7 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 
 - Packaged as a **custom Home Assistant add-on**: one container in which FastAPI serves both the API and the built frontend.
 - Opened through **HA Ingress**, as a sidebar panel that also works in the HA companion app and is protected by HA authentication.
-- Optionally also exposed on a **direct LAN port** (8099) for desktop or browser use. It is **disabled by default** because it bypasses HA authentication, and is enabled from the add-on's Network settings in HA.
+- Optionally also exposed on a **direct LAN port** (8099), for Claude Code and Claude Desktop over MCP. It is **disabled by default** and enabled from the add-on's Network settings in HA. That port serves **only `/mcp`, and only with the MCP token** (Settings → Claude); the app itself is only reachable through Ingress. See `app/core/access.py`.
 - **Ingress base path:** HA strips its prefix and sends it in `X-Ingress-Path`. When serving `index.html`, the backend injects it as a `<base>` tag and as `window.__BASE_PATH__`, which the frontend uses for the router basename and API URLs.
 - **Remote access is through the existing VPN tunnel.** Nothing is exposed to the internet.
 - **Data lives in `/data`** (database plus `/data/attachments/`), so it is included in HA backups. The add-on uses **cold backups**: HA stops it for a few seconds while backing up, so the SQLite file is never copied mid-write.
@@ -71,6 +71,7 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 │  │     ├─ links/
 │  │     ├─ attachments/
 │  │     ├─ inbox/
+│  │     ├─ mcp/            # MCP server, its token and token API
 │  │     ├─ search/
 │  │     ├─ shopping/       # computed shopping list, no tables
 │  │     ├─ dashboard/      # computed dashboard, no tables

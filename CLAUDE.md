@@ -45,7 +45,7 @@ Python is managed with `uv`, the frontend with `npm`. Local image builds use Pod
 | Build frontend (served by the backend from `frontend/dist`) | `cd frontend && npm run build` |
 | Test behind a fake Ingress prefix (needs a built frontend and the backend on 8099) | `cd backend && uv run python scripts/ingress_proxy.py`, then open `http://localhost:8100/api/hassio_ingress/dev-token/` |
 | Build the add-on image | `podman build -t shelf-help .` |
-| Run the add-on image (open via `127.0.0.1`, not `localhost`: rootless Podman resets IPv6 connections) | `podman run --rm -p 8099:8099 -v ./.data:/data shelf-help` |
+| Run the add-on image (open via `127.0.0.1`, not `localhost`: rootless Podman resets IPv6 connections). Without the `-e`, the port behaves as on HAOS: only `/mcp`, with the token | `podman run --rm -p 8099:8099 -v ./.data:/data -e SHELF_TRUSTED_CLIENTS='["0.0.0.0/0"]' shelf-help` |
 
 Notes:
 - Data lives in `SHELF_DATA_DIR`: `.data/` at the repo root in dev, `/data` in the add-on. Upload limit: `SHELF_MAX_UPLOAD_MB` (default 50).
@@ -54,6 +54,7 @@ Notes:
 - `npm run gen:api` exports the spec to `frontend/openapi.json` and regenerates `frontend/src/api/generated/`. Both are committed; never edit them by hand.
 - Add shadcn components with `cd frontend && npx shadcn@latest add <name>`.
 - The backend reads `frontend/dist/index.html` once at startup: restart it after rebuilding the frontend, or the page asks for old asset files and loads blank.
+- Access (`app/core/access.py`): requests from `SHELF_TRUSTED_CLIENTS` (HA's Ingress gateway in the add-on; also loopback in dev) reach everything. Anything else reaches only `/mcp`, with the token from `.data/mcp-token`. Tests act as trusted unless they set another client address.
 - The Ingress stand-in answers 502 when the backend is down, as HA does, so the connection banner can be tested by stopping the backend.
 
 **Deploying:** the repo root is the add-on folder (`config.yaml` and `Dockerfile` live there). Clone it into `/addons` on HAOS, then install it from Settings → Add-ons → Add-on store → Local add-ons. To update, pull, bump `version` in `config.yaml`, and rebuild from the add-on page.

@@ -66,7 +66,16 @@ The existing WireGuard VPN can't carry the mobile app's traffic: only your own d
 
 Not being on the internet is the most secure. OAuth is the right login *if* public, but it doesn't make public as safe as private: bots can find and probe a public endpoint, so a bug in login, the MCP library or the app matters more.
 
-#### Phase 1: Claude Code and Desktop on LAN/VPN (decided order, not yet scheduled)
+#### Phase 1: Claude Code and Desktop on LAN/VPN (built in v1.1.0, 2026-11-05)
+
+**Built as follows** (decisions of 2026-11-05):
+- The direct port serves only `/mcp`, with the token; the app's pages and API are refused there (403). `app/core/access.py`, trusting only HA's Ingress gateway by its real address, with uvicorn's proxy headers off.
+- The token lives in `/data/mcp-token` (owner-only file), created on first use. Settings shows it (hidden until revealed), copies it, makes a new one, and generates the Claude Code command and Claude Desktop config.
+- 24 tools in `app/modules/mcp/server.py`, calling the REST router functions so the app's rules and outputs are shared. No deletes. Free text (note bodies, descriptions) can only be added to (`append_to_note`), never replaced. Records Claude creates skip the inbox unless it's unsure (`in_inbox=true`).
+- Refusals (missing record, broken rule, invalid value) reach Claude with their reason; anything unexpected is reported only as a failure.
+- Stateless JSON responses (no sessions to keep). The SDK's own Host check is off, since it would reject the LAN address; the token covers that risk.
+
+The plan, as agreed beforehand:
 
 1. **Token auth on the direct port.**
    - Requests arriving through Ingress come from the Supervisor's gateway address (`172.30.32.2`) and are already authenticated by HA. Anything else must carry a bearer token, and may only reach `/mcp`. Everything else on the direct port gets 401.

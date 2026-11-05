@@ -5,6 +5,7 @@ export * from './inbox/inbox';
 export * from './items/items';
 export * from './links/links';
 export * from './locations/locations';
+export * from './mcp/mcp';
 export * from './notes/notes';
 export * from './projects/projects';
 export * from './search/search';

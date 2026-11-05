@@ -31,6 +31,7 @@ export * from './listProjectsParams';
 export * from './locationCreate';
 export * from './locationOut';
 export * from './locationUpdate';
+export * from './mcpToken';
 export * from './noteCreate';
 export * from './noteDetail';
 export * from './noteSummary';

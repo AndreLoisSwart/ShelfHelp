@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/page-header'
 import { Separator } from '@/components/ui/separator'
 import { LocationTreeEditor } from '@/features/locations/location-tree-editor'
 import { TagManager } from '@/features/tags/tag-manager'
+import { McpSetting } from './mcp-setting'
 import { StaleSetting } from './stale-setting'
 
 function SystemStatus() {
@@ -30,6 +31,8 @@ export function SettingsPage() {
         <TagManager />
         <Separator />
         <StaleSetting />
+        <Separator />
+        <McpSetting />
         <Separator />
         <SystemStatus />
       </div>
