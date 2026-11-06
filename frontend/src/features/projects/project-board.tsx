@@ -15,6 +15,7 @@ import type { ProjectStatus, ProjectSummary } from '@/api/generated/model'
 import { PROJECT_STATUS_LABELS } from '@/lib/statuses'
 import { cn } from '@/lib/utils'
 import { ProjectCard } from './project-card'
+import { HorizontalScroller } from '@/components/horizontal-scroller'
 
 type Props = {
   projects: ProjectSummary[]
@@ -38,7 +39,7 @@ function Column({ status, projects }: { status: ProjectStatus; projects: Project
       ref={setNodeRef}
       aria-label={PROJECT_STATUS_LABELS[status]}
       className={cn(
-        'flex min-w-56 flex-1 basis-0 snap-start flex-col gap-2 rounded-lg bg-muted/50 p-2 transition-shadow',
+        'flex min-w-52 flex-1 basis-0 snap-start flex-col gap-2 rounded-lg bg-muted/50 p-2 transition-shadow',
         isOver && 'ring-2 ring-ring/50',
       )}
     >
@@ -94,7 +95,7 @@ export function ProjectBoard({ projects, statuses, onMove }: Props) {
         setActiveId(null)
       }}
     >
-      <div
+      <HorizontalScroller
         className="-mx-4 flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-2 md:mx-0 md:scroll-px-0 md:px-0"
         onClickCapture={(e) => {
           if (justDragged.current) {
@@ -110,7 +111,7 @@ export function ProjectBoard({ projects, statuses, onMove }: Props) {
             projects={projects.filter((project) => project.status === status)}
           />
         ))}
-      </div>
+      </HorizontalScroller>
       {/* The default animation glides back to the card's old spot, which is wrong once the
           card has moved column: it would fly back, then jump. Only animate a drag that's undone. */}
       <DragOverlay dropAnimation={animateDrop ? undefined : null}>

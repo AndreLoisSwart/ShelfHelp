@@ -23,6 +23,7 @@ import {
   STATUS_ACTIVE_TONES,
 } from '@/lib/statuses'
 import { usePersistentState } from '@/lib/use-persistent-state'
+import { useWidePage } from '@/components/layout/page-width'
 import { NewProjectDialog } from './new-project-dialog'
 import { ProjectBoard } from './project-board'
 import { ProjectCard } from './project-card'
@@ -42,6 +43,8 @@ export function ProjectsPage() {
   const queryClient = useQueryClient()
   const updateProject = useUpdateProject()
   const [view, setView] = usePersistentState('projects-view', 'board', VIEWS)
+  // The board's columns need the room; the list reads better at the normal width.
+  useWidePage(view === 'board')
 
   // Filters live in the URL, so they survive going back from a project.
   const [params, setParams] = useSearchParams()

@@ -19,7 +19,7 @@
 | Route | Page | Contents |
 |---|---|---|
 | `/` | Home | Dashboard, see below |
-| `/projects` | Projects | Board (default) and list toggle; the choice is remembered per device. The board has a column per status, and dragging a card changes its status. Done and abandoned are hidden unless "Show finished" is on. Filter by tag; the list can also filter by status. Most recently touched first. Cards show status, readiness, next step and last touched |
+| `/projects` | Projects | Board (default) and list toggle; the choice is remembered per device. The board has a column per status, and dragging a card changes its status. In board view the page uses the full window width (up to 1600 px), so all six columns fit on a typical desktop; when they don't, an edge fade and a ‹ › arrow show there are more columns and scroll one at a time (`HorizontalScroller`; phones swipe instead). Done and abandoned are hidden unless "Show finished" is on. Filter by tag; the list can also filter by status. Most recently touched first. Cards show status, readiness, next step and last touched |
 | `/projects/:id` | Project details | Header with name, status, next step (editable) and readiness bar. Tabs: Overview (tags, description), Notes, Items (linked items with status, "link item"), Files & links. The open tab is kept in the URL. Until the markdown editor arrives (step 6) the description is a plain text box that stores markdown |
 | `/items` | Items | List with location tree filter, plus status and tag filters. Child items appear indented under their parent |
 | `/items/:id` | Item details | Status, location, parent and children, "Used in" (linked projects, opening their Items tab), links, attachments, description. "Used in" also links from this side: a picker of open projects (or create one), plus a Required / Nice to have switch and unlink on each row |
@@ -76,6 +76,7 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 | `LinkList` | Links on projects, items and notes. Add a URL and optional title; a link without a title shows its domain |
 | `AttachmentList` | Attachments on projects, items and notes. Upload several at once; PDFs and images open in a new tab, other files download |
 | `PageHeader` | All pages |
+| `HorizontalScroller` | Project board: a sideways-scrolling row with edge fades and arrows when there's more to see |
 | `DetailLayout` | Header plus tabs for detail pages |
 | `FilterBar` | List pages |
 | `EmptyState` | Any empty list |
