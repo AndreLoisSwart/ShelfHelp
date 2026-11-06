@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 from app.core.schemas import Name, reject_null
 from app.modules.items.models import ItemStatus
 from app.modules.projects.models import ProjectStatus, Requirement
+from app.modules.shops.schemas import ShopRef
 from app.modules.tags.schemas import TagRef
 
 
@@ -23,6 +24,7 @@ class ItemSummary(ItemRef):
     location_id: int | None
     in_inbox: bool
     tags: list[TagRef]
+    shops: list[ShopRef]
 
 
 class ProjectRef(BaseModel):
@@ -55,6 +57,7 @@ class ItemCreate(BaseModel):
     parent_id: int | None = None
     location_id: int | None = None
     tag_ids: list[int] = []
+    shop_ids: list[int] = []
     in_inbox: bool = False
 
 
@@ -67,6 +70,9 @@ class ItemUpdate(BaseModel):
     parent_id: int | None = None
     location_id: int | None = None
     tag_ids: list[int] | None = None
+    shop_ids: list[int] | None = None
     in_inbox: bool | None = None
 
-    _not_null = field_validator("name", "status", "description", "tag_ids", "in_inbox")(reject_null)
+    _not_null = field_validator("name", "status", "description", "tag_ids", "shop_ids", "in_inbox")(
+        reject_null
+    )

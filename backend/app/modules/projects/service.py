@@ -7,7 +7,7 @@ from app.core.db import utcnow
 from app.core.errors import NotFoundError
 from app.modules.attachments import storage
 from app.modules.attachments.models import Attachment
-from app.modules.items.models import Item, ItemStatus
+from app.modules.items.models import Item, ItemStatus, item_tags
 from app.modules.projects.models import Project, ProjectItem, ProjectStatus, Requirement
 from app.modules.projects.schemas import (
     ProjectCreate,
@@ -112,6 +112,24 @@ def delete_project(session: Session, project_id: int) -> None:
     session.delete(project)
     session.commit()
     storage.remove_files(files)
+
+
+SUGGESTED_TAGS = 5
+
+
+def suggested_tags(session: Session, project: Project) -> list[Tag]:
+    """Tags on the project's linked items that it lacks, most used first."""
+    have = {tag.id for tag in project.tags}
+    uses = func.count().label("uses")
+    rows = session.execute(
+        select(Tag, uses)
+        .join(item_tags, item_tags.c.tag_id == Tag.id)
+        .join(ProjectItem, ProjectItem.item_id == item_tags.c.item_id)
+        .where(ProjectItem.project_id == project.id)
+        .group_by(Tag.id)
+        .order_by(uses.desc(), func.lower(Tag.name))
+    )
+    return [tag for tag, _ in rows if tag.id not in have][:SUGGESTED_TAGS]
 
 
 def list_project_items(session: Session, project_id: int) -> list[ProjectItem]:

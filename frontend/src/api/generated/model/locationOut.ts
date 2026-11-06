@@ -4,10 +4,12 @@
  * Shelf-help
  * OpenAPI spec version: 0.1.0
  */
+import type { TagRef } from './tagRef';
 
 export interface LocationOut {
   id: number;
   name: string;
   parent_id: number | null;
   item_count: number;
+  tags: TagRef[];
 }

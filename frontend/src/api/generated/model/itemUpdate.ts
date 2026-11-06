@@ -16,5 +16,6 @@ export interface ItemUpdate {
   parent_id?: number | null;
   location_id?: number | null;
   tag_ids?: number[] | null;
+  shop_ids?: number[] | null;
   in_inbox?: boolean | null;
 }

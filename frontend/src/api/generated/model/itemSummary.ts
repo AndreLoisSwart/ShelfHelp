@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ItemStatus } from './itemStatus';
+import type { ShopRef } from './shopRef';
 import type { TagRef } from './tagRef';
 
 export interface ItemSummary {
@@ -15,4 +16,5 @@ export interface ItemSummary {
   location_id: number | null;
   in_inbox: boolean;
   tags: TagRef[];
+  shops: ShopRef[];
 }

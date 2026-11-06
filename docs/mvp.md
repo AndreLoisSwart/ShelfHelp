@@ -16,6 +16,8 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [x] Location (tree)
 - [x] Tags
 - [x] Link items to projects (required / nice-to-have)
+- [x] Shops an item can be bought from (added after V1, v1.2.0)
+- [x] Location tags given to items put there; parts get their parent's tags (v1.2.0)
 
 **Locations**
 - [x] Tree editor in Settings
@@ -38,6 +40,7 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 **Derived views**
 - [x] Project readiness
 - [x] Shopping page grouped by top-level location, with "Got it"
+- [x] Shopping filter by shop, across zones (v1.2.0)
 - [x] Dashboard: active projects and next steps, running low, stale projects
 
 **Platform**
@@ -68,6 +71,10 @@ Packaging and Ingress come first because they are the riskiest part. Proving the
 - Anything in `future-enhancements.md`
 
 ## Decisions
+
+Decided: location tags are copied to items (on create and on move, add only), including the tags of parent locations. Item tags are suggested to projects, not added. Parts get their parent item's tags (2026-11-06).
+
+Decided: shops are their own list, many per item, managed in Settings. Filtering the shopping list by a shop spans all zones and keeps items with no shop set in their own section (2026-11-06). Prices and per-shop product links are left out.
 
 Decided: stale projects default to 3 weeks, changeable in Settings (step 9).
 

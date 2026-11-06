@@ -68,6 +68,7 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 │  │     ├─ locations/
 │  │     ├─ notes/
 │  │     ├─ tags/
+│  │     ├─ shops/          # where items can be bought
 │  │     ├─ links/
 │  │     ├─ attachments/
 │  │     ├─ inbox/

@@ -21,6 +21,10 @@ ProjectItem  project_id, item_id, requirement, note (up to 200 characters)
 Tag          id, name (unique, ignoring case)
 ProjectTag   project_id, tag_id
 ItemTag      item_id, tag_id
+LocationTag  location_id, tag_id
+
+Shop         id, name (unique, ignoring case)
+ItemShop     item_id, shop_id
 
 Link         id, url, title,
              project_id | item_id | note_id   (exactly one set)
@@ -50,6 +54,7 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
 - Inbox records still count everywhere else, including search and the shopping list.
 
 **Items**
+- An item can list any number of shops it can be bought from. None means "not set yet", not "nowhere". Deleting a shop removes it from its items.
 - Items are always created standalone. Linking to a project is a separate action (through `ProjectItem`).
 - `parent_id` allows item hierarchy (e.g. table saw → blades, belts). The schema supports it in V1, while the UI only needs to show it simply.
 - Prevent cycles in `parent_id`.
@@ -58,6 +63,8 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
 - For a `need` item, `location_id` means *where it will live*. That decides which shopping list it appears on.
 
 **Locations**
+- A location's tags (and those of its ancestors) are copied to an item when it is created there or moved there, never linked: the item can drop them, and changing a location's tags doesn't change existing items. Settings offers to tag the items already there after a tag is added (`POST /api/locations/{id}/tag-items/{tag_id}`).
+- Moving an item, or making it part of another item, only ever adds tags. A part also gets its parent item's tags.
 - Locations form a tree. Top-level locations (no parent) are zones, e.g. Home and Workshop.
 - Filtering by a location includes all of its descendants.
 - Prevent cycles. Block deleting a location that still has items or children, or require them to be reassigned first.
@@ -102,10 +109,12 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
 - "Stale" means an `active` or `paused` project whose `last_touched_at` is older than a threshold. The threshold is `AppSettings.stale_after_days`, set in Settings, and defaults to 3 weeks.
 
 **Computed, never stored**
+- **Suggested project tags:** tags on a project's linked items that the project lacks, most used first, up to 5. Offered on the project's Overview tab, never added automatically.
 - **Readiness:** for a project, the count of `required` linked items with status `have` or `low`, out of all `required` linked items. Nice-to-have items are shown separately.
 - **Shopping list:** all items with status `low`, `out` or `need`, grouped by the top-level ancestor of their location. Items without a location go under "Unassigned".
   - Every zone gets a list, even when empty. "Unassigned" appears only when it has items.
   - Each item lists the open projects (not `done` or `abandoned`) it is linked to.
+  - Filtered by a shop, it keeps the items sold there plus the items with no shop set, so nothing drops off the list for want of a shop. The shopping page filters on the client; the API's `shop_id` does the same for Claude.
 
 **Search**
 - Covers project name, description and next step; item name and description; note title and body. Use SQLite FTS5.

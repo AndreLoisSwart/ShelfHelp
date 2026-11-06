@@ -14,6 +14,7 @@ import { FilesAndLinks } from '@/features/attachments/files-and-links'
 import { InboxNotice } from '@/features/inbox/inbox-notice'
 import { useLocationTree } from '@/features/locations/location-tree'
 import { LocationTreeSelect } from '@/features/locations/location-tree-select'
+import { ShopEditor } from '@/features/shops/shop-editor'
 import { TagEditor } from '@/features/tags/tag-editor'
 import { formatDate } from '@/lib/format'
 import { ItemProjects } from './item-projects'
@@ -131,6 +132,9 @@ export function ItemDetailPage() {
         </Field>
         <Field label="Tags">
           <TagEditor value={item.tags} onChange={(tag_ids) => save({ tag_ids })} />
+        </Field>
+        <Field label="Shops">
+          <ShopEditor value={item.shops} onChange={(shop_ids) => save({ shop_ids })} />
         </Field>
       </dl>
 

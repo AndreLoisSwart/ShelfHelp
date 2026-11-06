@@ -32,7 +32,7 @@ from app.modules.items.schemas import ItemCreate, ItemDetail, ItemSummary, ItemU
 from app.modules.links import router as links
 from app.modules.links.schemas import LinkCreate, LinkOut
 from app.modules.locations import router as locations
-from app.modules.locations.schemas import LocationOut
+from app.modules.locations.schemas import LocationOut, LocationUpdate
 from app.modules.notes import router as notes
 from app.modules.notes.schemas import NoteCreate, NoteDetail, NoteSummary, NoteUpdate
 from app.modules.owners import OwnerType
@@ -50,6 +50,8 @@ from app.modules.search import router as search_router
 from app.modules.search.schemas import SearchResults
 from app.modules.shopping import router as shopping
 from app.modules.shopping.schemas import ShoppingList
+from app.modules.shops import router as shops
+from app.modules.shops.schemas import ShopCreate, ShopOut
 from app.modules.tags import router as tags
 from app.modules.tags.schemas import TagCreate, TagOut
 
@@ -61,8 +63,15 @@ Shelf-help is the user's personal manager for projects, the items they need, and
 - Items are standalone things (tools, materials, household goods) with a status: have,
   low, out or need (to get). Low, out and need items make up the shopping list, grouped by
   zone (the top-level location). Items are linked to projects, never owned by them.
-- Locations form a tree; tags label projects and items. Look up ids with list_locations
-  and list_tags before using them.
+- Items can list the shops that sell them. Filter the shopping list by shop to answer
+  "what do I need from <shop>?"; items with no shop set are included, since they could
+  be bought anywhere.
+- Locations form a tree; tags label projects and items. Look up ids with list_locations,
+  list_tags and list_shops before using them.
+- Tags given to a location are added to items put there (or in a sub-location), and parts
+  get their parent item's tags. Tags are only ever added this way, never removed.
+- get_project lists suggested_tags: tags on its items the project lacks. Offer them to
+  the user rather than adding them unasked.
 - The inbox holds records waiting to be sorted. Fill in details yourself when you can.
   Set in_inbox=true when creating something you're unsure about, so the user reviews it.
 - Search before creating, to avoid duplicates.
@@ -166,10 +175,11 @@ def build_server(open_session: SessionOpener) -> MCPServer:
             return dashboard.get_dashboard(session)
 
     @tool(READ)
-    def get_shopping_list() -> list[ShoppingList]:
-        """Everything low, out or needed, grouped by zone, with the projects each is for."""
+    def get_shopping_list(shop_id: int | None = None) -> list[ShoppingList]:
+        """Everything low, out or needed, grouped by zone, with the projects each is for.
+        shop_id narrows it to items sold at that shop, plus items with no shop set."""
         with open_session() as session:
-            return shopping.get_shopping_lists(session)
+            return shopping.get_shopping_lists(session, shop_id)
 
     @tool(READ)
     def get_inbox() -> Inbox:
@@ -179,15 +189,40 @@ def build_server(open_session: SessionOpener) -> MCPServer:
 
     @tool(READ)
     def list_locations() -> list[LocationOut]:
-        """All locations. parent_id null means a zone (top-level location)."""
+        """All locations with their tags. parent_id null means a zone (top-level location)."""
         with open_session() as session:
             return locations.list_locations(session)
+
+    @tool(WRITE)
+    def set_location_tags(
+        location_id: int, tag_ids: list[int], tag_existing_items: bool = False
+    ) -> LocationOut:
+        """Replaces a location's tags. Items put there or in a sub-location from now on get
+        them. tag_existing_items also adds them to the items already there; otherwise
+        existing items are left alone. Removing a tag never removes it from items."""
+        with open_session() as session:
+            location = locations.update_location(
+                location_id, LocationUpdate(tag_ids=tag_ids), session
+            )
+            if tag_existing_items:
+                for tag_id in tag_ids:
+                    locations.tag_items(location_id, tag_id, session)
+                location = next(
+                    loc for loc in locations.list_locations(session) if loc.id == location_id
+                )
+            return location
 
     @tool(READ)
     def list_tags() -> list[TagOut]:
         """All tags, with how many items and projects use each."""
         with open_session() as session:
             return tags.list_tags(session)
+
+    @tool(READ)
+    def list_shops() -> list[ShopOut]:
+        """All shops, with how many items each sells."""
+        with open_session() as session:
+            return shops.list_shops(session)
 
     # --- Projects ---
 
@@ -294,6 +329,7 @@ def build_server(open_session: SessionOpener) -> MCPServer:
         location_id: int | None = None,
         parent_id: int | None = None,
         tag_ids: list[int] | None = None,
+        shop_ids: list[int] | None = None,
         in_inbox: bool = False,
     ) -> ItemDetail:
         """Creates an item. parent_id makes it part of another item (e.g. a blade for a saw).
@@ -305,6 +341,7 @@ def build_server(open_session: SessionOpener) -> MCPServer:
             location_id=location_id,
             parent_id=parent_id,
             tag_ids=tag_ids or [],
+            shop_ids=shop_ids or [],
             in_inbox=in_inbox,
         )
         with open_session() as session:
@@ -318,8 +355,10 @@ def build_server(open_session: SessionOpener) -> MCPServer:
         location_id: int | None = None,
         parent_id: int | None = None,
         tag_ids: list[int] | None = None,
+        shop_ids: list[int] | None = None,
     ) -> ItemDetail:
-        """Changes only the fields given. tag_ids replaces the item's tags.
+        """Changes only the fields given. tag_ids and shop_ids replace the item's tags
+        and shops.
         The description can't be changed here."""
         data = ItemUpdate(
             **_set(
@@ -328,6 +367,7 @@ def build_server(open_session: SessionOpener) -> MCPServer:
                 location_id=location_id,
                 parent_id=parent_id,
                 tag_ids=tag_ids,
+                shop_ids=shop_ids,
             )
         )
         with open_session() as session:
@@ -379,7 +419,7 @@ def build_server(open_session: SessionOpener) -> MCPServer:
         with open_session() as session:
             return notes.update_note(note_id, data, session)
 
-    # --- Inbox, tags and links ---
+    # --- Inbox, tags, shops and links ---
 
     @tool(WRITE)
     def mark_sorted(record_type: Literal["project", "item", "note"], record_id: int) -> str:
@@ -398,6 +438,12 @@ def build_server(open_session: SessionOpener) -> MCPServer:
         """Creates a tag, for use in tag_ids. Fails if one with that name exists."""
         with open_session() as session:
             return tags.create_tag(TagCreate(name=name), session)
+
+    @tool(WRITE)
+    def create_shop(name: str) -> ShopOut:
+        """Creates a shop, for use in shop_ids. Fails if one with that name exists."""
+        with open_session() as session:
+            return shops.create_shop(ShopCreate(name=name), session)
 
     @tool(WRITE)
     def add_link(owner_type: OwnerType, owner_id: int, url: str, title: str = "") -> LinkOut:

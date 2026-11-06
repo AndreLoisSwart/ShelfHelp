@@ -12,4 +12,5 @@ export interface LocationCreate {
      */
   name: string;
   parent_id?: number | null;
+  tag_ids?: number[];
 }

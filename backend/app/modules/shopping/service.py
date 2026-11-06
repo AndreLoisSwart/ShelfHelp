@@ -8,6 +8,8 @@ from app.modules.items.schemas import ItemSummary, ProjectRef
 from app.modules.locations.models import Location
 from app.modules.projects.models import Project, ProjectItem, ProjectStatus
 from app.modules.shopping.schemas import ShoppingItem, ShoppingList, Zone
+from app.modules.shops import service as shops
+from app.modules.shops.models import Shop
 
 TO_BUY = (ItemStatus.LOW, ItemStatus.OUT, ItemStatus.NEED)
 CLOSED = (ProjectStatus.DONE, ProjectStatus.ABANDONED)
@@ -38,13 +40,19 @@ def _open_projects(session: Session, item_ids: list[int]) -> dict[int, list[Proj
     return result
 
 
-def shopping_lists(session: Session) -> list[ShoppingList]:
-    """A list per zone, sorted by name, even when empty. "Unassigned" last, when not empty."""
+def shopping_lists(session: Session, shop_id: int | None = None) -> list[ShoppingList]:
+    """A list per zone, sorted by name, even when empty. "Unassigned" last, when not empty.
+
+    With a shop, only items sold there, plus items with no shop set: nobody has said
+    where to get those yet, so they mustn't drop off the list while at a shop.
+    """
     locations = {loc.id: loc for loc in session.scalars(select(Location))}
     zone_of = _zone_of(locations)
-    items = list(
-        session.scalars(select(Item).where(Item.status.in_(TO_BUY)).order_by(func.lower(Item.name)))
-    )
+    query = select(Item).where(Item.status.in_(TO_BUY)).order_by(func.lower(Item.name))
+    if shop_id is not None:
+        shops.get_shop(session, shop_id)
+        query = query.where(Item.shops.any(Shop.id == shop_id) | ~Item.shops.any())
+    items = list(session.scalars(query))
     projects = _open_projects(session, [item.id for item in items])
 
     zones = sorted(

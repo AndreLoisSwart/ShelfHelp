@@ -1,4 +1,4 @@
-import { CornerDownRight, Ellipsis, FolderInput, Trash2 } from 'lucide-react'
+import { CornerDownRight, Ellipsis, FolderInput, Tags, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   useCreateLocation,
@@ -8,6 +8,7 @@ import {
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { EditableText } from '@/components/editable-text'
 import { InlineAddForm } from '@/components/inline-add-form'
+import { TagChips } from '@/components/tag-chips'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { plural } from '@/lib/format'
 import { subtreeIds, useLocationTree, type LocationNode } from './location-tree'
+import { LocationTagEditor } from './location-tag-editor'
 import { LocationTreeSelect } from './location-tree-select'
 
 const INDENT = 20
@@ -34,6 +36,7 @@ function LocationRow({ node }: { node: LocationNode }) {
   const deleteLocation = useDeleteLocation()
   const [adding, setAdding] = useState(false)
   const [moving, setMoving] = useState(false)
+  const [editingTags, setEditingTags] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const inUse = node.children.length > 0 || node.item_count > 0
 
@@ -49,6 +52,7 @@ function LocationRow({ node }: { node: LocationNode }) {
           aria-label={`Name of ${node.path}`}
           className={node.depth === 0 ? 'font-medium' : undefined}
         />
+        {!editingTags && <TagChips tags={node.tags} className="max-w-1/2 shrink-0 justify-end" />}
         {node.item_count > 0 && (
           <span className="shrink-0 text-xs text-muted-foreground">
             {plural(node.item_count, 'item')}
@@ -66,6 +70,10 @@ function LocationRow({ node }: { node: LocationNode }) {
               <CornerDownRight />
               Add sub-location
             </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setEditingTags((open) => !open)}>
+              <Tags />
+              {editingTags ? 'Done with tags' : 'Tags…'}
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setMoving(true)}>
               <FolderInput />
               Move…
@@ -81,6 +89,19 @@ function LocationRow({ node }: { node: LocationNode }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {editingTags && (
+        <div
+          className="flex flex-wrap items-center gap-2 pt-1 pb-2"
+          style={{ paddingLeft: node.depth * INDENT + 8 }}
+        >
+          <span className="text-xs text-muted-foreground">Given to items put here:</span>
+          <LocationTagEditor node={node} />
+          <Button variant="ghost" size="sm" onClick={() => setEditingTags(false)}>
+            Done
+          </Button>
+        </div>
+      )}
 
       {adding && (
         <div className="py-1" style={{ paddingLeft: (node.depth + 1) * INDENT }}>
@@ -144,7 +165,7 @@ export function LocationTreeEditor() {
       <h2 className="text-lg font-semibold">Locations</h2>
       <p className="mt-1 mb-4 text-sm text-muted-foreground">
         Top-level locations are zones, like Home and Workshop. Each zone gets its own shopping list.
-        Click a name to rename it.
+        Tags on a location are given to items put there. Click a name to rename it.
       </p>
       {roots.length > 0 ? (
         <ul className="mb-4">

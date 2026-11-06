@@ -11,4 +11,5 @@
 export interface LocationUpdate {
   name?: string | null;
   parent_id?: number | null;
+  tag_ids?: number[] | null;
 }

@@ -8,7 +8,7 @@ def test_create_and_list_tree(api):
     workshop = make(api, "Workshop")
     shelf = make(api, "  Shelf A  ", workshop)
     locations = {loc["id"]: loc for loc in api.get("/api/locations").json()}
-    expected = {"id": shelf, "name": "Shelf A", "parent_id": workshop, "item_count": 0}
+    expected = {"id": shelf, "name": "Shelf A", "parent_id": workshop, "item_count": 0, "tags": []}
     assert locations[shelf] == expected
 
 

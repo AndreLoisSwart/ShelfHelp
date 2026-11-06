@@ -2,6 +2,7 @@ import { useGetHealth } from '@/api/generated/health/health'
 import { PageHeader } from '@/components/page-header'
 import { Separator } from '@/components/ui/separator'
 import { LocationTreeEditor } from '@/features/locations/location-tree-editor'
+import { ShopManager } from '@/features/shops/shop-manager'
 import { TagManager } from '@/features/tags/tag-manager'
 import { McpSetting } from './mcp-setting'
 import { StaleSetting } from './stale-setting'
@@ -29,6 +30,8 @@ export function SettingsPage() {
         <LocationTreeEditor />
         <Separator />
         <TagManager />
+        <Separator />
+        <ShopManager />
         <Separator />
         <StaleSetting />
         <Separator />

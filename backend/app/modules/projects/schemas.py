@@ -37,6 +37,9 @@ class ProjectSummary(BaseModel):
 
 class ProjectDetail(ProjectSummary):
     description_md: str
+    # Tags on its linked items that the project doesn't have, most used first. Offered,
+    # never added automatically: item tags describe materials more than projects.
+    suggested_tags: list[TagRef] = []
     created_at: datetime
     updated_at: datetime
 

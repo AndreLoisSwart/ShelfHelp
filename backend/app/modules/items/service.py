@@ -10,6 +10,7 @@ from app.modules.items.schemas import ItemCreate, ItemProjectOut, ItemUpdate, Pr
 from app.modules.locations import service as locations
 from app.modules.projects import service as projects
 from app.modules.projects.models import Project, ProjectItem
+from app.modules.shops import service as shops
 from app.modules.tags import service as tags
 from app.modules.tags.models import Tag
 
@@ -49,6 +50,23 @@ def _check_parent(session: Session, item: Item | None, parent_id: int) -> None:
         parent = parent.parent
 
 
+def _with(current: list[Tag], extra: list[Tag]) -> list[Tag]:
+    """current plus any of extra it lacks, kept by name."""
+    have = {tag.id for tag in current}
+    merged = current + [tag for tag in extra if tag.id not in have]
+    return sorted(merged, key=lambda tag: tag.name.lower())
+
+
+def _inherited(session: Session, location_id: int | None, parent_id: int | None) -> list[Tag]:
+    """Tags an item picks up from where it's put and from the item it's part of."""
+    found: list[Tag] = []
+    if location_id is not None:
+        found += locations.inherited_tags(session, location_id)
+    if parent_id is not None:
+        found += get_item(session, parent_id).tags
+    return found
+
+
 def create_item(session: Session, data: ItemCreate) -> Item:
     if data.parent_id is not None:
         _check_parent(session, None, data.parent_id)
@@ -60,7 +78,11 @@ def create_item(session: Session, data: ItemCreate) -> Item:
         description=data.description,
         parent_id=data.parent_id,
         location_id=data.location_id,
-        tags=tags.get_tags(session, data.tag_ids),
+        tags=_with(
+            tags.get_tags(session, data.tag_ids),
+            _inherited(session, data.location_id, data.parent_id),
+        ),
+        shops=shops.get_shops(session, data.shop_ids),
         in_inbox=data.in_inbox,
     )
     session.add(item)
@@ -77,6 +99,16 @@ def update_item(session: Session, item_id: int, data: ItemUpdate) -> Item:
         locations.get_location(session, location_id)
     if (tag_ids := changes.pop("tag_ids", None)) is not None:
         item.tags = tags.get_tags(session, tag_ids)
+    if (shop_ids := changes.pop("shop_ids", None)) is not None:
+        item.shops = shops.get_shops(session, shop_ids)
+    # Moving it, or making it part of another item, adds the tags that come with that.
+    # Never removes any: they may have been added by hand.
+    moved_to = (
+        changes.get("location_id") if changes.get("location_id") != item.location_id else None
+    )
+    new_parent = changes.get("parent_id") if changes.get("parent_id") != item.parent_id else None
+    if extra := _inherited(session, moved_to, new_parent):
+        item.tags = _with(list(item.tags), extra)
     for field, value in changes.items():
         setattr(item, field, value)
     item.updated_at = utcnow()

@@ -8,6 +8,7 @@ import type { ItemProjectOut } from './itemProjectOut';
 import type { ItemRef } from './itemRef';
 import type { ItemStatus } from './itemStatus';
 import type { ItemSummary } from './itemSummary';
+import type { ShopRef } from './shopRef';
 import type { TagRef } from './tagRef';
 
 export interface ItemDetail {
@@ -18,6 +19,7 @@ export interface ItemDetail {
   location_id: number | null;
   in_inbox: boolean;
   tags: TagRef[];
+  shops: ShopRef[];
   description: string;
   parent: ItemRef | null;
   children: ItemSummary[];

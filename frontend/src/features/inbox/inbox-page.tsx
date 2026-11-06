@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import { ItemStatusToggle } from '@/features/items/item-status-toggle'
 import { LocationTreeSelect } from '@/features/locations/location-tree-select'
 import { ProjectStatusToggle } from '@/features/projects/project-status-toggle'
+import { ShopEditor } from '@/features/shops/shop-editor'
 import { TagEditor } from '@/features/tags/tag-editor'
 import { errorMessage } from '@/api/fetcher'
 import { useQuickAdd } from './use-quick-add'
@@ -79,6 +80,9 @@ function ItemCard({ item, save }: { item: ItemSummary; save: Save<ItemUpdate> })
       </Field>
       <Field label="Tags">
         <TagEditor value={item.tags} onChange={(tag_ids) => save({ tag_ids })} />
+      </Field>
+      <Field label="Shops">
+        <ShopEditor value={item.shops} onChange={(shop_ids) => save({ shop_ids })} />
       </Field>
     </InboxCard>
   )

@@ -112,6 +112,26 @@ export function ProjectDetailPage() {
               <div>
                 <h2 className="mb-2 text-sm font-medium">Tags</h2>
                 <TagEditor value={project.tags} onChange={(tag_ids) => save({ tag_ids })} />
+                {project.suggested_tags.length > 0 && (
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                    <span>Its items are tagged:</span>
+                    {project.suggested_tags.map((tag) => (
+                      <Button
+                        key={tag.id}
+                        variant="ghost"
+                        size="xs"
+                        onClick={() =>
+                          save({ tag_ids: [...project.tags.map((t) => t.id), tag.id] })
+                        }
+                        aria-label={`Add tag ${tag.name}`}
+                        className="text-muted-foreground"
+                      >
+                        <Plus />
+                        {tag.name}
+                      </Button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <h2 className="mb-2 text-sm font-medium">Description</h2>

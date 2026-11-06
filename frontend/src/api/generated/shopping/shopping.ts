@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  GetShoppingListsParams,
+  HTTPValidationError,
   ShoppingList
 } from '../model';
 
@@ -46,21 +48,30 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getGetShoppingListsUrl = () => {
+export const getGetShoppingListsUrl = (params?: GetShoppingListsParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/shopping`
+  return stringifiedParams.length > 0 ? `/api/shopping?${stringifiedParams}` : `/api/shopping`
 }
 
 /**
  * Every item that is low, out or needed, grouped by the zone of its location.
+ *
+ * shop_id narrows it to items sold at that shop, plus items with no shop set.
  * @summary Get Shopping Lists
  */
-export const getShoppingLists = async ( options?: Parameters<typeof apiFetch>[1]): Promise<ShoppingList[]> => {
+export const getShoppingLists = async (params?: GetShoppingListsParams, options?: Parameters<typeof apiFetch>[1]): Promise<ShoppingList[]> => {
 
-  return apiFetch<ShoppingList[]>(getGetShoppingListsUrl(),
+  return apiFetch<ShoppingList[]>(getGetShoppingListsUrl(params),
   {
     ...options,
     method: 'GET'
@@ -73,23 +84,23 @@ export const getShoppingLists = async ( options?: Parameters<typeof apiFetch>[1]
 
 
 
-export const getGetShoppingListsQueryKey = () => {
+export const getGetShoppingListsQueryKey = (params?: GetShoppingListsParams,) => {
     return [
-    `/api/shopping`
+    `/api/shopping`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetShoppingListsQueryOptions = <TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<unknown>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+export const getGetShoppingListsQueryOptions = <TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<HTTPValidationError>>(params?: GetShoppingListsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetShoppingListsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetShoppingListsQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getShoppingLists>>> = ({ signal }) => getShoppingLists({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getShoppingLists>>> = ({ signal }) => getShoppingLists(params, { signal, ...requestOptions });
 
 
 
@@ -99,11 +110,11 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type GetShoppingListsQueryResult = NonNullable<Awaited<ReturnType<typeof getShoppingLists>>>
-export type GetShoppingListsQueryError = ErrorType<unknown>
+export type GetShoppingListsQueryError = ErrorType<HTTPValidationError>
 
 
-export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<unknown>>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>> & Pick<
+export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<HTTPValidationError>>(
+ params: undefined |  GetShoppingListsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getShoppingLists>>,
           TError,
@@ -112,8 +123,8 @@ export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppin
       >, request?: SecondParameter<typeof apiFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>> & Pick<
+export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<HTTPValidationError>>(
+ params?: GetShoppingListsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getShoppingLists>>,
           TError,
@@ -122,20 +133,20 @@ export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppin
       >, request?: SecondParameter<typeof apiFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<HTTPValidationError>>(
+ params?: GetShoppingListsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Get Shopping Lists
  */
 
-export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<unknown>>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+export function useGetShoppingLists<TData = Awaited<ReturnType<typeof getShoppingLists>>, TError = ErrorType<HTTPValidationError>>(
+ params?: GetShoppingListsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getShoppingLists>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetShoppingListsQueryOptions(options)
+  const queryOptions = getGetShoppingListsQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

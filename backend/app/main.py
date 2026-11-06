@@ -26,6 +26,7 @@ from app.modules.projects import router as projects
 from app.modules.search import router as search
 from app.modules.settings import router as app_settings
 from app.modules.shopping import router as shopping
+from app.modules.shops import router as shops
 from app.modules.tags import router as tags
 
 
@@ -72,6 +73,7 @@ def create_app() -> FastAPI:
     api.include_router(projects.router)
     api.include_router(notes.router)
     api.include_router(tags.router)
+    api.include_router(shops.router)
     api.include_router(shopping.router)
     api.include_router(links.router)
     api.include_router(attachments.router)

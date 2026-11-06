@@ -1,5 +1,5 @@
 import { ExternalLink, Plus, Trash2 } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import {
   useCreateLink,
   useDeleteLink,
@@ -11,6 +11,7 @@ import { EditableText } from '@/components/editable-text'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { domainOf } from '@/lib/format'
+import { refocusIfLost } from '@/lib/refocus'
 
 type Props = { ownerType: OwnerType; ownerId: number }
 
@@ -18,6 +19,8 @@ function AddLinkForm({ ownerType, ownerId }: Props) {
   const createLink = useCreateLink()
   const [url, setUrl] = useState('')
   const [title, setTitle] = useState('')
+  const formRef = useRef<HTMLFormElement>(null)
+  const urlRef = useRef<HTMLInputElement>(null)
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -29,13 +32,16 @@ function AddLinkForm({ ownerType, ownerId }: Props) {
           setUrl('')
           setTitle('')
         },
+        // Ready for the next one, even when the button was clicked rather than Enter pressed.
+        onSettled: () => refocusIfLost(urlRef.current, formRef.current),
       },
     )
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
+    <form ref={formRef} onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
       <Input
+        ref={urlRef}
         type="url"
         inputMode="url"
         value={url}

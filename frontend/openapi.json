@@ -175,6 +175,108 @@
         }
       }
     },
+    "/api/locations/{location_id}/tag-items/{tag_id}": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Count Items Missing Tag",
+        "description": "How many items here or in a sub-location don't have the tag yet.",
+        "operationId": "count_items_missing_tag",
+        "parameters": [
+          {
+            "name": "location_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Location Id"
+            }
+          },
+          {
+            "name": "tag_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tag Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaggedCount"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Tag Items",
+        "description": "Gives the tag to items already here or in a sub-location. Returns how many changed.",
+        "operationId": "tag_items",
+        "parameters": [
+          {
+            "name": "location_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Location Id"
+            }
+          },
+          {
+            "name": "tag_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Tag Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaggedCount"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/items": {
       "get": {
         "tags": [
@@ -1199,14 +1301,13 @@
         }
       }
     },
-    "/api/shopping": {
+    "/api/shops": {
       "get": {
         "tags": [
-          "shopping"
+          "shops"
         ],
-        "summary": "Get Shopping Lists",
-        "description": "Every item that is low, out or needed, grouped by the zone of its location.",
-        "operationId": "get_shopping_lists",
+        "summary": "List Shops",
+        "operationId": "list_shops",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1214,10 +1315,188 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/ShoppingList"
+                    "$ref": "#/components/schemas/ShopOut"
                   },
                   "type": "array",
+                  "title": "Response List Shops"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "shops"
+        ],
+        "summary": "Create Shop",
+        "operationId": "create_shop",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shops/{shop_id}": {
+      "patch": {
+        "tags": [
+          "shops"
+        ],
+        "summary": "Update Shop",
+        "operationId": "update_shop",
+        "parameters": [
+          {
+            "name": "shop_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Shop Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShopOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "shops"
+        ],
+        "summary": "Delete Shop",
+        "operationId": "delete_shop",
+        "parameters": [
+          {
+            "name": "shop_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Shop Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/shopping": {
+      "get": {
+        "tags": [
+          "shopping"
+        ],
+        "summary": "Get Shopping Lists",
+        "description": "Every item that is low, out or needed, grouped by the zone of its location.\n\nshop_id narrows it to items sold at that shop, plus items with no shop set.",
+        "operationId": "get_shopping_lists",
+        "parameters": [
+          {
+            "name": "shop_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shop Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ShoppingList"
+                  },
                   "title": "Response Get Shopping Lists"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -2016,6 +2295,14 @@
             "title": "Tag Ids",
             "default": []
           },
+          "shop_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Shop Ids",
+            "default": []
+          },
           "in_inbox": {
             "type": "boolean",
             "title": "In Inbox",
@@ -2074,6 +2361,13 @@
             "type": "array",
             "title": "Tags"
           },
+          "shops": {
+            "items": {
+              "$ref": "#/components/schemas/ShopRef"
+            },
+            "type": "array",
+            "title": "Shops"
+          },
           "description": {
             "type": "string",
             "title": "Description"
@@ -2123,6 +2417,7 @@
           "location_id",
           "in_inbox",
           "tags",
+          "shops",
           "description",
           "parent",
           "children",
@@ -2253,6 +2548,13 @@
             },
             "type": "array",
             "title": "Tags"
+          },
+          "shops": {
+            "items": {
+              "$ref": "#/components/schemas/ShopRef"
+            },
+            "type": "array",
+            "title": "Shops"
           }
         },
         "type": "object",
@@ -2263,7 +2565,8 @@
           "parent_id",
           "location_id",
           "in_inbox",
-          "tags"
+          "tags",
+          "shops"
         ],
         "title": "ItemSummary"
       },
@@ -2338,6 +2641,20 @@
               }
             ],
             "title": "Tag Ids"
+          },
+          "shop_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shop Ids"
           },
           "in_inbox": {
             "anyOf": [
@@ -2456,6 +2773,14 @@
               }
             ],
             "title": "Parent Id"
+          },
+          "tag_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Tag Ids",
+            "default": []
           }
         },
         "type": "object",
@@ -2488,6 +2813,13 @@
           "item_count": {
             "type": "integer",
             "title": "Item Count"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags"
           }
         },
         "type": "object",
@@ -2495,7 +2827,8 @@
           "id",
           "name",
           "parent_id",
-          "item_count"
+          "item_count",
+          "tags"
         ],
         "title": "LocationOut"
       },
@@ -2524,6 +2857,20 @@
               }
             ],
             "title": "Parent Id"
+          },
+          "tag_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag Ids"
           }
         },
         "type": "object",
@@ -2833,6 +3180,14 @@
             "type": "string",
             "title": "Description Md"
           },
+          "suggested_tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Suggested Tags",
+            "default": []
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -2855,6 +3210,7 @@
           "last_touched_at",
           "readiness",
           "description_md",
+          "suggested_tags",
           "created_at",
           "updated_at"
         ],
@@ -3223,6 +3579,77 @@
         "title": "SettingsUpdate",
         "description": "Only the fields sent are changed."
       },
+      "ShopCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ShopCreate"
+      },
+      "ShopOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "item_count": {
+            "type": "integer",
+            "title": "Item Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "item_count"
+        ],
+        "title": "ShopOut"
+      },
+      "ShopRef": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ShopRef"
+      },
+      "ShopUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "ShopUpdate"
+      },
       "ShoppingItem": {
         "properties": {
           "id": {
@@ -3269,6 +3696,13 @@
             "type": "array",
             "title": "Tags"
           },
+          "shops": {
+            "items": {
+              "$ref": "#/components/schemas/ShopRef"
+            },
+            "type": "array",
+            "title": "Shops"
+          },
           "projects": {
             "items": {
               "$ref": "#/components/schemas/ProjectRef"
@@ -3286,6 +3720,7 @@
           "location_id",
           "in_inbox",
           "tags",
+          "shops",
           "projects"
         ],
         "title": "ShoppingItem"
@@ -3421,6 +3856,19 @@
           "name"
         ],
         "title": "TagUpdate"
+      },
+      "TaggedCount": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count"
+        ],
+        "title": "TaggedCount"
       },
       "ValidationError": {
         "properties": {

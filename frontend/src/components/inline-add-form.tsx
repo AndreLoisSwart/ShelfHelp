@@ -1,7 +1,8 @@
 import { Plus } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { refocusIfLost } from '@/lib/refocus'
 
 type Props = {
   placeholder: string
@@ -14,6 +15,8 @@ type Props = {
 export function InlineAddForm({ placeholder, onAdd, onCancel, autoFocus }: Props) {
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -28,12 +31,15 @@ export function InlineAddForm({ placeholder, onAdd, onCancel, autoFocus }: Props
       // Already shown as a toast; keep the text so it can be fixed.
     } finally {
       setBusy(false)
+      // Ready for the next one, even when Add was clicked rather than Enter pressed.
+      refocusIfLost(inputRef.current, formRef.current)
     }
   }
 
   return (
-    <form onSubmit={submit} className="flex gap-2">
+    <form ref={formRef} onSubmit={submit} className="flex gap-2">
       <Input
+        ref={inputRef}
         value={name}
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === 'Escape' && onCancel?.()}

@@ -20,7 +20,10 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 def _detail(session: Session, project: Project) -> ProjectDetail:
     readiness = service.readiness(session, [project.id])[project.id]
-    return ProjectDetail.model_validate(project).model_copy(update={"readiness": readiness})
+    suggested = service.suggested_tags(session, project)
+    return ProjectDetail.model_validate(project).model_copy(
+        update={"readiness": readiness, "suggested_tags": suggested}
+    )
 
 
 @router.get("")

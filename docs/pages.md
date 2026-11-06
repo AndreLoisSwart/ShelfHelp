@@ -20,14 +20,14 @@
 |---|---|---|
 | `/` | Home | Dashboard, see below |
 | `/projects` | Projects | Board (default) and list toggle; the choice is remembered per device. The board has a column per status, and dragging a card changes its status. In board view the page uses the full window width (up to 1600 px), so all six columns fit on a typical desktop; when they don't, an edge fade and a ‹ › arrow show there are more columns and scroll one at a time (`HorizontalScroller`; phones swipe instead). Done and abandoned are hidden unless "Show finished" is on. Filter by tag; the list can also filter by status. Most recently touched first. Cards show status, readiness, next step and last touched |
-| `/projects/:id` | Project details | Header with name, status, next step (editable) and readiness bar. Tabs: Overview (tags, description), Notes, Items (linked items with status, "link item"), Files & links. The open tab is kept in the URL. Until the markdown editor arrives (step 6) the description is a plain text box that stores markdown |
+| `/projects/:id` | Project details | Header with name, status, next step (editable) and readiness bar. Tabs: Overview (tags, with one-tap suggestions taken from its items' tags, and description), Notes, Items (linked items with status, "link item"), Files & links. The open tab is kept in the URL. Until the markdown editor arrives (step 6) the description is a plain text box that stores markdown |
 | `/items` | Items | List with location tree filter, plus status and tag filters. Child items appear indented under their parent |
-| `/items/:id` | Item details | Status, location, parent and children, "Used in" (linked projects, opening their Items tab), links, attachments, description. "Used in" also links from this side: a picker of open projects (or create one), plus a Required / Nice to have switch and unlink on each row |
+| `/items/:id` | Item details | Status, location, parent and children, shops, "Used in" (linked projects, opening their Items tab), links, attachments, description. "Used in" also links from this side: a picker of open projects (or create one), plus a Required / Nice to have switch and unlink on each row |
 | `/notes` | Notes | All notes, most recently updated first, with a text excerpt. Filter by project or "No project" |
 | `/notes/:id` | Note editor | Title, project assignment, markdown editor, links and attachments. Saves automatically shortly after typing stops and when leaving the page, with a Saving…/Saved indicator. Deleting goes to the project's Notes tab, or to Notes |
-| `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Opens on the first zone with something to get. Rows show where in the zone the item lives and which projects it's for. Each row has a one-tap "Got it" (sets status to `have`) with an 8-second Undo. Tapping the row opens Item details |
-| `/inbox` | Inbox | Records with `in_inbox`, grouped into items, projects and notes, newest first. Inline fields to sort each one (items: status, location, tags; projects: status, tags; notes: project) and a "Done" button that clears the flag, with Undo. Detail pages of inbox records show an "In the inbox" notice with its own Done button |
-| `/settings` | Settings | Location tree editor, tag management, when a project counts as stale (1 to 12 weeks), and Claude (MCP): the token (hidden until shown, copy, make new) and ready-made Claude Code and Claude Desktop setup for a given HA address and port. Later: export, backups |
+| `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Opens on the first zone with something to get. Rows show where in the zone the item lives and which projects it's for. Above the tabs, a shop filter (once any shops exist): picking a shop replaces the tabs with that shop's items across every zone, under zone headings, then a "No shop set" section showing each item's full location. The shop and zone are kept in the URL. Without a shop, rows also say which shops sell the item. Each row has a one-tap "Got it" (sets status to `have`) with an 8-second Undo. Tapping the row opens Item details |
+| `/inbox` | Inbox | Records with `in_inbox`, grouped into items, projects and notes, newest first. Inline fields to sort each one (items: status, location, tags, shops; projects: status, tags; notes: project) and a "Done" button that clears the flag, with Undo. Detail pages of inbox records show an "In the inbox" notice with its own Done button |
+| `/settings` | Settings | Location tree editor (each location's tags shown as chips, edited from its ⋯ menu; adding one offers to tag the items already there), tag management, shop management, when a project counts as stale (1 to 12 weeks), and Claude (MCP): the token (hidden until shown, copy, make new) and ready-made Claude Code and Claude Desktop setup for a given HA address and port. Later: export, backups |
 
 There is deliberately **no shopping-list item detail page**. Shopping rows are items, so they open Item details.
 
@@ -82,8 +82,10 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 | `EmptyState` | Any empty list |
 | `ConfirmDialog` | Deletes and other destructive actions |
 | `EditableText` | Names and descriptions edited in place (saves on blur or Enter) |
-| `InlineAddForm` | Adding locations and tags in Settings |
+| `InlineAddForm` | Adding locations, tags and shops in Settings |
+| `ChipPicker` | Assigned records as removable chips plus a picker that can create new ones. `TagEditor` and `ShopEditor` wrap it |
 | `TagEditor` | Assigning tags to projects and items, creating new ones on the fly |
+| `ShopEditor` | Assigning shops to items (`features/shops`) |
 | `QuickAddSheet` | Quick-add overlay (`features/inbox`, opened anywhere with `useQuickAdd()`) |
 | `SearchPalette` | Search overlay (`features/search`) |
 

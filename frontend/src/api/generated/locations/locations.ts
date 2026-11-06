@@ -27,7 +27,8 @@ import type {
   HTTPValidationError,
   LocationCreate,
   LocationOut,
-  LocationUpdate
+  LocationUpdate,
+  TaggedCount
 } from '../model';
 
 import { apiFetch } from '../../fetcher';
@@ -400,4 +401,189 @@ export const useDeleteLocation = <TError = ErrorType<HTTPValidationError>,
         TContext
       > => {
       return useMutation(getDeleteLocationMutationOptions(options), queryClient);
+    }
+    export const getCountItemsMissingTagUrl = (locationId: number,
+    tagId: number,) => {
+
+
+
+
+  return `/api/locations/${locationId}/tag-items/${tagId}`
+}
+
+/**
+ * How many items here or in a sub-location don't have the tag yet.
+ * @summary Count Items Missing Tag
+ */
+export const countItemsMissingTag = async (locationId: number,
+    tagId: number, options?: Parameters<typeof apiFetch>[1]): Promise<TaggedCount> => {
+
+  return apiFetch<TaggedCount>(getCountItemsMissingTagUrl(locationId,tagId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getCountItemsMissingTagQueryKey = (locationId: number,
+    tagId: number,) => {
+    return [
+    `/api/locations/${locationId}/tag-items/${tagId}`
+    ] as const;
+    }
+
+
+export const getCountItemsMissingTagQueryOptions = <TData = Awaited<ReturnType<typeof countItemsMissingTag>>, TError = ErrorType<HTTPValidationError>>(locationId: number,
+    tagId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof countItemsMissingTag>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCountItemsMissingTagQueryKey(locationId,tagId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof countItemsMissingTag>>> = ({ signal }) => countItemsMissingTag(locationId,tagId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: locationId !== null && locationId !== undefined && tagId !== null && tagId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof countItemsMissingTag>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CountItemsMissingTagQueryResult = NonNullable<Awaited<ReturnType<typeof countItemsMissingTag>>>
+export type CountItemsMissingTagQueryError = ErrorType<HTTPValidationError>
+
+
+export function useCountItemsMissingTag<TData = Awaited<ReturnType<typeof countItemsMissingTag>>, TError = ErrorType<HTTPValidationError>>(
+ locationId: number,
+    tagId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof countItemsMissingTag>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof countItemsMissingTag>>,
+          TError,
+          Awaited<ReturnType<typeof countItemsMissingTag>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCountItemsMissingTag<TData = Awaited<ReturnType<typeof countItemsMissingTag>>, TError = ErrorType<HTTPValidationError>>(
+ locationId: number,
+    tagId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof countItemsMissingTag>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof countItemsMissingTag>>,
+          TError,
+          Awaited<ReturnType<typeof countItemsMissingTag>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCountItemsMissingTag<TData = Awaited<ReturnType<typeof countItemsMissingTag>>, TError = ErrorType<HTTPValidationError>>(
+ locationId: number,
+    tagId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof countItemsMissingTag>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Count Items Missing Tag
+ */
+
+export function useCountItemsMissingTag<TData = Awaited<ReturnType<typeof countItemsMissingTag>>, TError = ErrorType<HTTPValidationError>>(
+ locationId: number,
+    tagId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof countItemsMissingTag>>, TError, TData>>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCountItemsMissingTagQueryOptions(locationId,tagId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export const getTagItemsUrl = (locationId: number,
+    tagId: number,) => {
+
+
+
+
+  return `/api/locations/${locationId}/tag-items/${tagId}`
+}
+
+/**
+ * Gives the tag to items already here or in a sub-location. Returns how many changed.
+ * @summary Tag Items
+ */
+export const tagItems = async (locationId: number,
+    tagId: number, options?: Parameters<typeof apiFetch>[1]): Promise<TaggedCount> => {
+
+  return apiFetch<TaggedCount>(getTagItemsUrl(locationId,tagId),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getTagItemsMutationKey = () => ['tagItems'] as const;
+
+export const getTagItemsMutationOptions = <TError = ErrorType<HTTPValidationError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof tagItems>>, TError,TagItemsMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof tagItems>>, TError,TagItemsMutationVariables, TContext> => {
+
+const mutationKey = getTagItemsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof tagItems>>, TagItemsMutationVariables> = (props) => {
+          const {locationId,tagId} = props ?? {};
+
+          return  tagItems(locationId,tagId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TagItemsMutationResult = NonNullable<Awaited<ReturnType<typeof tagItems>>>
+
+    export type TagItemsMutationError = ErrorType<HTTPValidationError>
+    export type TagItemsMutationVariables = {locationId: number;tagId: number}
+
+    /**
+ * @summary Tag Items
+ */
+export const useTagItems = <TError = ErrorType<HTTPValidationError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof tagItems>>, TError,TagItemsMutationVariables, TContext>, request?: SecondParameter<typeof apiFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof tagItems>>,
+        TError,
+        TagItemsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getTagItemsMutationOptions(options), queryClient);
     }

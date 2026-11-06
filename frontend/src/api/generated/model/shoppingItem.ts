@@ -6,6 +6,7 @@
  */
 import type { ItemStatus } from './itemStatus';
 import type { ProjectRef } from './projectRef';
+import type { ShopRef } from './shopRef';
 import type { TagRef } from './tagRef';
 
 export interface ShoppingItem {
@@ -16,5 +17,6 @@ export interface ShoppingItem {
   location_id: number | null;
   in_inbox: boolean;
   tags: TagRef[];
+  shops: ShopRef[];
   projects: ProjectRef[];
 }

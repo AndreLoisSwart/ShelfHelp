@@ -11,4 +11,5 @@ export * from './projects/projects';
 export * from './search/search';
 export * from './settings/settings';
 export * from './shopping/shopping';
+export * from './shops/shops';
 export * from './tags/tags';

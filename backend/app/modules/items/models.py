@@ -5,6 +5,7 @@ from sqlalchemy import Column, Enum, ForeignKey, String, Table, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, UTCDateTime, utcnow
+from app.modules.shops.models import Shop
 from app.modules.tags.models import Tag
 
 
@@ -20,6 +21,13 @@ item_tags = Table(
     Base.metadata,
     Column("item_id", ForeignKey("items.id", ondelete="CASCADE"), primary_key=True),
     Column("tag_id", ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True),
+)
+
+item_shops = Table(
+    "item_shops",
+    Base.metadata,
+    Column("item_id", ForeignKey("items.id", ondelete="CASCADE"), primary_key=True),
+    Column("shop_id", ForeignKey("shops.id", ondelete="CASCADE"), primary_key=True),
 )
 
 
@@ -56,4 +64,8 @@ class Item(Base):
     )
     tags: Mapped[list[Tag]] = relationship(
         secondary=item_tags, order_by=lambda: func.lower(Tag.name), lazy="selectin"
+    )
+    # Where it can be bought. Any number; none means "not set".
+    shops: Mapped[list[Shop]] = relationship(
+        secondary=item_shops, order_by=lambda: func.lower(Shop.name), lazy="selectin"
     )

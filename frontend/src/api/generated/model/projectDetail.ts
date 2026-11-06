@@ -18,6 +18,7 @@ export interface ProjectDetail {
   last_touched_at: string;
   readiness: Readiness;
   description_md: string;
+  suggested_tags: TagRef[];
   created_at: string;
   updated_at: string;
 }

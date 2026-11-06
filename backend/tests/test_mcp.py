@@ -128,7 +128,7 @@ def test_regenerating_retires_the_old_token(api, lan):
 def test_tool_list(mcp):
     res = mcp.lan.post("/mcp", headers=mcp.headers, json=rpc("tools/list"))
     tools = {t["name"]: t for t in res.json()["result"]["tools"]}
-    assert len(tools) == 24
+    assert len(tools) == 27
     assert not [name for name in tools if "delete" in name or "remove" in name]
     assert tools["search"]["annotations"]["readOnlyHint"] is True
     assert tools["create_item"]["annotations"]["destructiveHint"] is False
@@ -223,3 +223,32 @@ def test_results_are_json(mcp):
         json=rpc("tools/call", {"name": "get_dashboard", "arguments": {}}),
     )
     assert json.loads(res.json()["result"]["content"][0]["text"])["active"] == []
+
+
+def test_shops(mcp):
+    builders = mcp("create_shop", name="Builders")
+    assert [s["name"] for s in mcp("list_shops")] == ["Builders"]
+    screws = mcp("create_item", name="Screws", status="need", shop_ids=[builders["id"]])
+    mcp(
+        "create_item",
+        name="Coffee",
+        status="need",
+        shop_ids=[mcp("create_shop", name="Makro")["id"]],
+    )
+    lists = mcp("get_shopping_list", shop_id=builders["id"])
+    assert [i["name"] for i in lists[0]["items"]] == ["Screws"]
+    updated = mcp("update_item", item_id=screws["id"], shop_ids=[])
+    assert updated["shops"] == []
+
+
+def test_location_tags(mcp, api):
+    zone = api.post("/api/locations", json={"name": "Garden"}).json()
+    old = mcp("create_item", name="Spade", location_id=zone["id"])
+    tag = mcp("create_tag", name="Gardening")
+    location = mcp("set_location_tags", location_id=zone["id"], tag_ids=[tag["id"]])
+    assert [t["name"] for t in location["tags"]] == ["Gardening"]
+    assert mcp("get_item", item_id=old["id"])["item"]["tags"] == []  # left alone
+    new = mcp("create_item", name="Rake", location_id=zone["id"])
+    assert [t["name"] for t in new["tags"]] == ["Gardening"]
+    mcp("set_location_tags", location_id=zone["id"], tag_ids=[tag["id"]], tag_existing_items=True)
+    assert [t["name"] for t in mcp("get_item", item_id=old["id"])["item"]["tags"]] == ["Gardening"]
