@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="Shelf Help" width="160">
+</p>
+
 # Shelf-help
 
 A personal project, item and notes manager that runs as a self-hosted **Home Assistant add-on**.
