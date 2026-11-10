@@ -8,10 +8,10 @@ Dashboard
 ![Dashboard](docs/screenshots/dashboard.png)
 
 Project board
-![Dashboard](docs/screenshots/projectboard.png)
+![ProjectBoard](docs/screenshots/projectboard.png)
 
 Dashboard on mobile
-![Dashboard](docs/screenshots/dashboard_mobile.png)
+![Dashboard_Mobile](docs/screenshots/dashboard_mobile.png)
 
 
 ## Why
