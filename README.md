@@ -11,6 +11,7 @@ Project board
 ![ProjectBoard](docs/screenshots/projectboard.png)
 
 Dashboard on mobile
+
 ![Dashboard_Mobile](docs/screenshots/dashboard_mobile.png)
 
 
