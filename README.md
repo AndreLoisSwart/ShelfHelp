@@ -123,3 +123,14 @@ The design docs live in [`docs/`](docs/):
 ## Status
 
 V1 is complete and in daily use (v1.2.0). It's a personal project, so outside contributions aren't being accepted. Feel free to look around.
+<<<<<<< HEAD
+=======
+
+## How it was built
+
+I designed and directed this project and built it with Claude Code as a pair programmer. The specs in `docs/` and the rules in [`CLAUDE.md`](CLAUDE.md) came first, and they steered the work step by step.
+
+## License
+
+Copyright © 2026 Andre-Lois Swart. All rights reserved. The source is public to read, but no licence is granted to reuse it.
+>>>>>>> e5351f6 (more screenshots)
