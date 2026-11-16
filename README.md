@@ -26,20 +26,21 @@ Paper notes and loose lists get lost. A tool like this only helps if adding thin
 - **Capture is fast.** Quick-add needs only a type and a name. Everything lands in an inbox to sort later.
 - **Items stand on their own.** A tool or part is created once and then *linked* to as many projects as need it.
 - **Little upkeep.** No quantity tracking: an item is Have, Low, Out or Need to get. Project readiness and the shopping list are computed, never stored, so they're always up to date.
-- **It shows what to do next.** Every project has a next step and a last-touched date, so stalled projects stand out.
+- **It shows what to do next.** Every project has an ordered task list, whose first open task is its next step, and a last-touched date, so stalled projects stand out.
 
 ## Features
 
-- **Projects:** a board with drag-and-drop between statuses (someday → planned → active → paused → done), a list view, tags, an editable next step, and a readiness bar showing how many required items are on hand
+- **Projects:** a board with drag-and-drop between statuses (someday → planned → active → paused → done), a list view, tags, a task list whose first open task is the next step, and a readiness bar showing how many required items are on hand
+- **Tasks:** in a project or standalone, with linked items, tags and an optional description. Drag to reorder, tick off to move on; done tasks stay on the project, collapsed
 - **Items:** parent/child parts (table saw → blade), a location tree, tags, and shops they can be bought from. Items pick up their location's tags automatically
 - **Notes:** a rich markdown editor (TipTap), stored as plain markdown and checked by round-trip tests
 - **Shopping list:** everything Low, Out or Need to get, grouped by zone (Home, Workshop…) or filtered by shop, with one-tap "Got it" and undo
-- **Dashboard:** active projects with their next steps, items running low, and projects that have "gone quiet"
+- **Dashboard:** active projects with their next steps (tick them off right there), items running low, and projects that have "gone quiet"
 - **Inbox and quick-add:** capture now, sort later
 - **Global search:** a Ctrl+K command palette backed by SQLite FTS5
 - **Links and file attachments** on projects, items and notes (manuals, datasheets)
 - **Responsive:** a sidebar on desktop and a bottom bar on mobile. Works inside the Home Assistant companion app
-- **AI integration (MCP):** 27 task-shaped tools let Claude Code, Claude Desktop or any other AI agent search, create and update projects, items and notes
+- **AI integration (MCP):** 33 task-shaped tools let Claude Code, Claude Desktop or any other AI agent search, create and update projects, tasks, items and notes
 
 ## Tech stack
 
@@ -122,7 +123,7 @@ The design docs live in [`docs/`](docs/):
 
 ## Status
 
-V1 is complete and in daily use (v1.2.0). It's a personal project, so outside contributions aren't being accepted. Feel free to look around.
+V1 is complete and in daily use (v1.3.0). It's a personal project, so outside contributions aren't being accepted. Feel free to look around.
 <<<<<<< HEAD
 =======
 
