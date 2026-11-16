@@ -1,11 +1,10 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Query
-from sqlalchemy.orm import Session
 
 from app.core.db import SessionDep
 from app.modules.projects import service
-from app.modules.projects.models import Project, ProjectStatus
+from app.modules.projects.models import ProjectStatus
 from app.modules.projects.schemas import (
     ProjectCreate,
     ProjectDetail,
@@ -14,16 +13,10 @@ from app.modules.projects.schemas import (
     ProjectSummary,
     ProjectUpdate,
 )
+from app.modules.projects.summaries import detail as _detail
+from app.modules.projects.summaries import summaries
 
 router = APIRouter(prefix="/projects", tags=["projects"])
-
-
-def _detail(session: Session, project: Project) -> ProjectDetail:
-    readiness = service.readiness(session, [project.id])[project.id]
-    suggested = service.suggested_tags(session, project)
-    return ProjectDetail.model_validate(project).model_copy(
-        update={"readiness": readiness, "suggested_tags": suggested}
-    )
 
 
 @router.get("")
@@ -33,14 +26,7 @@ def list_projects(
     tag_id: Annotated[list[int] | None, Query()] = None,
 ) -> list[ProjectSummary]:
     """Most recently touched first. Several status or tag_id values match any of them."""
-    projects = service.list_projects(session, status, tag_id)
-    readiness = service.readiness(session, [project.id for project in projects])
-    return [
-        ProjectSummary.model_validate(project).model_copy(
-            update={"readiness": readiness[project.id]}
-        )
-        for project in projects
-    ]
+    return summaries(session, service.list_projects(session, status, tag_id))
 
 
 @router.post("", status_code=201)

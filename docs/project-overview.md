@@ -11,13 +11,14 @@ The underlying problem is that paper and loose lists get misplaced or forgotten.
 1. **Capture must be fast.** Adding something takes a type and a name. Details get added later, from the inbox.
 2. **Items exist on their own.** An item is created standalone and then *linked* to projects. Projects never own items.
 3. **Low maintenance.** Quantities are not tracked. Status (Have / Low / Out / Need to get) is enough. Derived views (readiness, shopping list) are computed, so they never need upkeep.
-4. **Show what to do next.** Every project has a next step and a last-touched date, so stalled projects are visible.
+4. **Show what to do next.** Every project has an ordered task list, whose first open task is its next step, and a last-touched date, so stalled projects are visible.
 5. **Clean UI.** Neutral, uncluttered and usable on mobile. Colour is reserved for status.
 6. **Built to grow.** Feature-module structure, so new features are new folders.
 
 ## Core concepts
 
-- **Project:** anything from an idea to an ongoing build. Has a status, next step, notes, linked items, links and attachments.
+- **Project:** anything from an idea to an ongoing build. Has a status, tasks (the first open one is its next step), notes, linked items, links and attachments.
+- **Task:** something to do, in a project or standalone. A title, an optional description, linked items and tags; done or not.
 - **Item:** a tool, component, consumable or household good. Can have a parent item (e.g. table saw → blade), a location, links and attachments.
 - **Location:** a tree. Top-level locations (Home, Workshop) act as zones for filtering and shopping lists.
 - **Note:** markdown (headings, checkboxes, etc.). Optionally belongs to a project.

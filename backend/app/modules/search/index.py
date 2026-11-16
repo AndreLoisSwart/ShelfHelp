@@ -1,11 +1,11 @@
-"""The full-text search index: one FTS5 table over projects, items and notes.
+"""The full-text search index: one FTS5 table over projects, tasks, items and notes.
 
 SQLite triggers keep it in sync, so no code path can forget to update it. The SQL is
 frozen into the migration that creates it, and tests/test_db.py checks the migrated
 database ends up with exactly this schema.
 
 Careful: SQLite drops a table's triggers with the table, and Alembic batch migrations
-rebuild tables. A migration that rebuilds projects, items or notes must recreate their
+rebuild tables. A migration that rebuilds projects, tasks, items or notes must recreate their
 triggers (test_db.py fails if it doesn't).
 """
 
@@ -24,13 +24,8 @@ class Source:
 
 
 SOURCES = (
-    Source(
-        "project",
-        "projects",
-        "name",
-        "{r}.next_step || char(10) || {r}.description_md",
-        ("name", "next_step", "description_md"),
-    ),
+    Source("project", "projects", "name", "{r}.description_md", ("name", "description_md")),
+    Source("task", "tasks", "title", "{r}.description", ("title", "description")),
     Source("item", "items", "name", "{r}.description", ("name", "description")),
     Source("note", "notes", "title", "{r}.body_md", ("title", "body_md")),
 )

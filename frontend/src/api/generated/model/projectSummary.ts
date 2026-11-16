@@ -4,17 +4,20 @@
  * Shelf-help
  * OpenAPI spec version: 0.1.0
  */
+import type { NextTask } from './nextTask';
 import type { ProjectStatus } from './projectStatus';
 import type { Readiness } from './readiness';
 import type { TagRef } from './tagRef';
+import type { TaskCounts } from './taskCounts';
 
 export interface ProjectSummary {
   id: number;
   name: string;
   status: ProjectStatus;
-  next_step: string;
   in_inbox: boolean;
   tags: TagRef[];
   last_touched_at: string;
   readiness: Readiness;
+  next_task: NextTask | null;
+  task_counts: TaskCounts;
 }

@@ -2,6 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import type { ProjectStatus } from '@/api/generated/model'
 import { useCreateProject } from '@/api/generated/projects/projects'
+import { useCreateTask } from '@/api/generated/tasks/tasks'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -18,6 +19,7 @@ import { ProjectStatusToggle } from './project-status-toggle'
 export function NewProjectDialog({ trigger }: { trigger: ReactNode }) {
   const navigate = useNavigate()
   const createProject = useCreateProject()
+  const createTask = useCreateTask()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [status, setStatus] = useState<ProjectStatus>('someday')
@@ -32,18 +34,17 @@ export function NewProjectDialog({ trigger }: { trigger: ReactNode }) {
     }
   }
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) return
-    createProject.mutate(
-      { data: { name, status, next_step: nextStep } },
-      {
-        onSuccess: (project) => {
-          setOpen(false)
-          navigate(`/projects/${project.id}`)
-        },
-      },
-    )
+    if (!name.trim() || createProject.isPending) return
+    const project = await createProject.mutateAsync({ data: { name, status } }).catch(() => null)
+    if (!project) return
+    // The next step is the project's first task.
+    const title = nextStep.trim()
+    if (title)
+      await createTask.mutateAsync({ data: { title, project_id: project.id } }).catch(() => null)
+    setOpen(false)
+    navigate(`/projects/${project.id}`)
   }
 
   return (
@@ -73,7 +74,7 @@ export function NewProjectDialog({ trigger }: { trigger: ReactNode }) {
               id="new-project-next"
               value={nextStep}
               onChange={(e) => setNextStep(e.target.value)}
-              maxLength={500}
+              maxLength={200}
               placeholder="Optional"
             />
           </div>

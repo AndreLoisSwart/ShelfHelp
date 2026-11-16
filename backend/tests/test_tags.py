@@ -1,7 +1,13 @@
 def test_crud_and_counts(api):
     tag = api.post("/api/tags", json={"name": "Wood"}).json()
     api.post("/api/items", json={"name": "Plank", "tag_ids": [tag["id"]]})
-    expected = {"id": tag["id"], "name": "Wood", "item_count": 1, "project_count": 0}
+    expected = {
+        "id": tag["id"],
+        "name": "Wood",
+        "item_count": 1,
+        "project_count": 0,
+        "task_count": 0,
+    }
     assert api.get("/api/tags").json() == [expected]
 
     res = api.patch(f"/api/tags/{tag['id']}", json={"name": "Timber"})

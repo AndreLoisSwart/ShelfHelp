@@ -21,7 +21,12 @@ class ItemHit(SearchHit):
     status: ItemStatus
 
 
+class TaskHit(SearchHit):
+    done: bool
+
+
 class SearchResults(BaseModel):
     projects: list[ProjectHit]
+    tasks: list[TaskHit]
     items: list[ItemHit]
     notes: list[SearchHit]

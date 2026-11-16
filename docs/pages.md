@@ -3,12 +3,12 @@
 ## Navigation
 
 **Desktop**
-- **Sidebar:** Home, Projects, Items, Notes, Shopping. Settings sits at the bottom.
+- **Sidebar:** Home, Projects, Tasks, Items, Notes, Shopping. Settings sits at the bottom.
 - **Top bar:** search, inbox icon (with count) and a quick-add button.
 
 **Mobile**
 - **Bottom bar:** Home, Projects, **+** (quick-add, centre), Items, Shopping.
-- **Top bar:** search and inbox icon. Notes and Settings are reached from a menu, or from projects and search.
+- **Top bar:** search and inbox icon. Tasks, Notes and Settings are reached from a menu, or from projects and search.
 
 **Inside the HA app**
 - The app runs as an Ingress panel and must work inside the HA companion app's frame.
@@ -19,17 +19,21 @@
 | Route | Page | Contents |
 |---|---|---|
 | `/` | Home | Dashboard, see below |
-| `/projects` | Projects | Board (default) and list toggle; the choice is remembered per device. The board has a column per status, and dragging a card changes its status. In board view the page uses the full window width (up to 1600 px), so all six columns fit on a typical desktop; when they don't, an edge fade and a ‹ › arrow show there are more columns and scroll one at a time (`HorizontalScroller`; phones swipe instead). Done and abandoned are hidden unless "Show finished" is on. Filter by tag; the list can also filter by status. Most recently touched first. Cards show status, readiness, next step and last touched |
-| `/projects/:id` | Project details | Header with name, status, next step (editable) and readiness bar. Tabs: Overview (tags, with one-tap suggestions taken from its items' tags, and description), Notes, Items (linked items with status, "link item"), Files & links. The open tab is kept in the URL. Until the markdown editor arrives (step 6) the description is a plain text box that stores markdown |
+| `/projects` | Projects | Board (default) and list toggle; the choice is remembered per device. The board has a column per status, and dragging a card changes its status. In board view the page uses the full window width (up to 1600 px), so all six columns fit on a typical desktop; when they don't, an edge fade and a ‹ › arrow show there are more columns and scroll one at a time (`HorizontalScroller`; phones swipe instead). Done and abandoned are hidden unless "Show finished" is on. Filter by tag; the list can also filter by status. Most recently touched first. Cards show status, readiness, next step (the first open task) and last touched |
+| `/projects/:id` | Project details | Header with name, status, next step and readiness bar. The next step is the first open task, ticked off from the header; with no open task the header offers to add one. Tabs: Overview (tags, with one-tap suggestions taken from its items' tags, and description), Tasks (see below), Notes, Items (linked items with status, "link item"), Files & links. The open tab is kept in the URL. Until the markdown editor arrives (step 6) the description is a plain text box that stores markdown |
+| `/tasks` | Tasks | Open tasks grouped by project (standalone ones first, under "No project"), each in its own order. Filter by project, "No project" and tag; "Show done" adds the done ones. A row has a tick box, the title (opens the task), its tags and item readiness ("2 of 3 items"). "New task" adds a standalone task |
+| `/tasks/:id` | Task details | Title, done tick box, project (picker, or none), description (plain text), tags, linked items (picker that can create a `need` item, unlink on each row). Inbox notice when in the inbox. Delete goes back to the project's Tasks tab, or to Tasks |
 | `/items` | Items | List with location tree filter, plus status and tag filters. Child items appear indented under their parent |
 | `/items/:id` | Item details | Status, location, parent and children, shops, "Used in" (linked projects, opening their Items tab), links, attachments, description. "Used in" also links from this side: a picker of open projects (or create one), plus a Required / Nice to have switch and unlink on each row |
 | `/notes` | Notes | All notes, most recently updated first, with a text excerpt. Filter by project or "No project" |
 | `/notes/:id` | Note editor | Title, project assignment, markdown editor, links and attachments. Saves automatically shortly after typing stops and when leaving the page, with a Saving…/Saved indicator. Deleting goes to the project's Notes tab, or to Notes |
 | `/shopping` | Shopping | One tab per top-level location, plus "Unassigned". Opens on the first zone with something to get. Rows show where in the zone the item lives and which projects it's for. Above the tabs, a shop filter (once any shops exist): picking a shop replaces the tabs with that shop's items across every zone, under zone headings, then a "No shop set" section showing each item's full location. The shop and zone are kept in the URL. Without a shop, rows also say which shops sell the item. Each row has a one-tap "Got it" (sets status to `have`) with an 8-second Undo. Tapping the row opens Item details |
-| `/inbox` | Inbox | Records with `in_inbox`, grouped into items, projects and notes, newest first. Inline fields to sort each one (items: status, location, tags, shops; projects: status, tags; notes: project) and a "Done" button that clears the flag, with Undo. Detail pages of inbox records show an "In the inbox" notice with its own Done button |
+| `/inbox` | Inbox | Records with `in_inbox`, grouped into items, projects, tasks and notes, newest first. Inline fields to sort each one (items: status, location, tags, shops; projects: status, tags; tasks: project, tags; notes: project) and a "Done" button that clears the flag, with Undo. Detail pages of inbox records show an "In the inbox" notice with its own Done button |
 | `/settings` | Settings | Location tree editor (each location's tags shown as chips, edited from its ⋯ menu; adding one offers to tag the items already there), tag management, shop management, when a project counts as stale (1 to 12 weeks), and Claude (MCP): the token (hidden until shown, copy, make new) and ready-made Claude Code and Claude Desktop setup for a given HA address and port. Later: export, backups |
 
 There is deliberately **no shopping-list item detail page**. Shopping rows are items, so they open Item details.
+
+The **project Tasks tab** lists the open tasks in order, the first marked as the next step, with an add field at the top (new tasks go to the bottom). Drag a row's handle to reorder; "Make next" moves a task to the top. Done tasks sit below in a collapsed "N done" section, most recent first, and can be reopened.
 
 The **project Notes tab** reuses the Notes list component, filtered to that project, and opens the same editor.
 
@@ -37,7 +41,7 @@ The **project Notes tab** reuses the Notes list component, filtered to that proj
 
 Sections in priority order:
 
-1. **Active projects with their next step.** Every `active` project, most recently touched first. The next step is editable inline on the card (which touches the project); the name opens it. The touched time turns orange when the project is stale. This is the most-used section.
+1. **Active projects with their next step.** Every `active` project, most recently touched first. The card shows the first open task with a tick box: ticking it off brings up the next one. With no open task, the card has a field to add one. Both touch the project. The name opens it. The touched time turns orange when the project is stale. This is the most-used section.
 2. **Running low.** A compact list (name, status badge, location) of items that are out, then low, capped at 6, with "and N more on the shopping list". Need-to-get items are left to the shopping list. Links to Shopping.
 3. **Stale projects**, titled "Gone quiet". Smaller, a nudge rather than a guilt list: active or paused projects past the threshold, oldest first, e.g. "Table saw restoration — 6 weeks". Paused ones show their badge.
 
@@ -47,8 +51,8 @@ No inbox section, because the inbox icon already shows the count. On mobile the 
 
 ## Overlays
 
-- **Quick-add:** a dialog on desktop and a bottom sheet on mobile, opened from the Add button (desktop), the bottom bar's **+** (mobile) or the search palette. Choose the type (Item / Note / Project, the last one used is remembered per device), enter a name, and for an item pick Have or Need to get. Enter saves to the inbox, closes, and shows a toast with an Open button; it never navigates away by itself.
-- **Search:** a command palette (Ctrl+K or Cmd+K, or the search icon). Results are grouped into projects, items and notes, up to 5 each, with matched words highlighted and a status badge for projects and items. Selecting one navigates to it. With nothing typed it lists the pages and Quick add.
+- **Quick-add:** a dialog on desktop and a bottom sheet on mobile, opened from the Add button (desktop), the bottom bar's **+** (mobile) or the search palette. Choose the type (Item / Task / Note / Project, the last one used is remembered per device), enter a name, and for an item pick Have or Need to get. Enter saves to the inbox, closes, and shows a toast with an Open button; it never navigates away by itself.
+- **Search:** a command palette (Ctrl+K or Cmd+K, or the search icon). Results are grouped into projects, tasks, items and notes, up to 5 each, with matched words highlighted, a status badge for projects and items, and a done mark for tasks. Selecting one navigates to it. With nothing typed it lists the pages and Quick add.
 - **Back button:** while quick-add or search is open, the phone's back button closes it instead of leaving the page behind (`lib/use-back-to-close.ts`, which adds a history entry while the overlay is open).
 
 ## Loading, errors and first use
@@ -67,8 +71,9 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 |---|---|
 | `StatusBadge` | Project and item status, colour-coded |
 | `ReadinessBar` | Project cards and header. Hidden when a project has no required items |
-| `TagChips` | Projects and items |
+| `TagChips` | Projects, tasks and items |
 | `ProjectCard` | Projects list and board, dashboard |
+| `TaskRow` | Tasks page, project Tasks tab (`features/tasks`) |
 | `ItemRow` | Items list, project Items tab, shopping, dashboard |
 | `EntityPicker` | Search existing records with "create new" (e.g. linking items to a project) |
 | `LocationTreeSelect` | Item location, items filter |
@@ -84,7 +89,7 @@ Generic components live in `frontend/src/components/`. Components bound to one f
 | `EditableText` | Names and descriptions edited in place (saves on blur or Enter) |
 | `InlineAddForm` | Adding locations, tags and shops in Settings |
 | `ChipPicker` | Assigned records as removable chips plus a picker that can create new ones. `TagEditor` and `ShopEditor` wrap it |
-| `TagEditor` | Assigning tags to projects and items, creating new ones on the fly |
+| `TagEditor` | Assigning tags to projects, tasks and items, creating new ones on the fly |
 | `ShopEditor` | Assigning shops to items (`features/shops`) |
 | `QuickAddSheet` | Quick-add overlay (`features/inbox`, opened anywhere with `useQuickAdd()`) |
 | `SearchPalette` | Search overlay (`features/search`) |

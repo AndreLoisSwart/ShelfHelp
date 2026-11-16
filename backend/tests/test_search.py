@@ -20,13 +20,16 @@ def ids(hits):
 
 
 def test_finds_each_kind_by_prefix(api):
-    project = create(api, "projects", name="Table saw restoration", next_step="Order belts")
+    project = create(api, "projects", name="Table saw restoration")
+    task = create(api, "tasks", title="Sand the table", project_id=project["id"])
     item = create(api, "items", name="Saw blade", description="80 tooth, for the table saw")
     note = create(api, "notes", title="Fence ideas", body_md="# Saw fence\n\n- [ ] **measure**")
     results = search(api, "sa")
     assert ids(results["projects"]) == [project["id"]]
     assert ids(results["items"]) == [item["id"]]
     assert ids(results["notes"]) == [note["id"]]
+    assert ids(results["tasks"]) == [task["id"]]
+    assert results["tasks"][0]["done"] is False
     assert results["projects"][0]["status"] == "someday"
     assert results["items"][0]["status"] == "have"
     assert results["items"][0]["title"] == f"{S}Saw{E} blade"
@@ -41,11 +44,15 @@ def test_every_word_must_match_case_and_accents_ignored(api):
     assert search(api, "cafe grinder")["items"] == []
 
 
-def test_searches_next_step_and_description(api):
-    project = create(api, "projects", name="Shed", next_step="Buy hinges")
-    create(api, "projects", name="Desk", description_md="Oak top, **hinged** flap")
-    assert ids(search(api, "hinges")["projects"]) == [project["id"]]
-    assert len(search(api, "hinge")["projects"]) == 2
+def test_searches_descriptions(api):
+    project = create(api, "projects", name="Desk", description_md="Oak top, **hinged** flap")
+    task = create(api, "tasks", title="Fit the lid", description="Buy hinges first")
+    assert ids(search(api, "hinged")["projects"]) == [project["id"]]
+    assert ids(search(api, "hinges")["tasks"]) == [task["id"]]
+    api.patch(f"/api/tasks/{task['id']}", json={"done": True})
+    assert search(api, "hinges")["tasks"][0]["done"] is True
+    api.delete(f"/api/tasks/{task['id']}")
+    assert search(api, "hinges")["tasks"] == []
 
 
 def test_title_matches_rank_first(api):
@@ -88,8 +95,8 @@ def test_query_syntax_is_inert(api):
 
 def test_empty_and_overlong_queries(api):
     create(api, "items", name="Bolt")
-    assert search(api, "  ?! ") == {"projects": [], "items": [], "notes": []}
-    assert search(api, "") == {"projects": [], "items": [], "notes": []}
+    assert search(api, "  ?! ") == {"projects": [], "tasks": [], "items": [], "notes": []}
+    assert search(api, "") == {"projects": [], "tasks": [], "items": [], "notes": []}
     assert api.get("/api/search", params={"q": "x" * 201}).status_code == 422
 
 

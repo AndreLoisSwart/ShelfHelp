@@ -13,6 +13,7 @@ class TagRef(BaseModel):
 class TagOut(TagRef):
     item_count: int
     project_count: int
+    task_count: int
 
 
 class TagCreate(BaseModel):

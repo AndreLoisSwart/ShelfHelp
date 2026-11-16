@@ -11,9 +11,12 @@ import type {
   NoteUpdate,
   ProjectSummary,
   ProjectUpdate,
+  TaskSummary,
+  TaskUpdate,
 } from '@/api/generated/model'
 import { useUpdateNote } from '@/api/generated/notes/notes'
 import { useListProjects, useUpdateProject } from '@/api/generated/projects/projects'
+import { useUpdateTask } from '@/api/generated/tasks/tasks'
 import { EmptyState } from '@/components/empty-state'
 import { EntityPicker } from '@/components/entity-picker'
 import { PageHeader } from '@/components/page-header'
@@ -105,6 +108,29 @@ function ProjectCard({ project, save }: { project: ProjectSummary; save: Save<Pr
   )
 }
 
+type TaskCardProps = { task: TaskSummary; projects: ProjectSummary[]; save: Save<TaskUpdate> }
+
+function TaskCard({ task, projects, save }: TaskCardProps) {
+  return (
+    <InboxCard title={task.title} to={`/tasks/${task.id}`} onDone={() => done(task.title, save)}>
+      <Field label="Project">
+        <EntityPicker
+          options={projects.map((p) => ({ id: p.id, label: p.name }))}
+          value={task.project?.id ?? null}
+          onChange={(project_id) => save({ project_id })}
+          placeholder="No project"
+          noneLabel="No project"
+          searchPlaceholder="Find a project…"
+          className="w-full sm:w-72"
+        />
+      </Field>
+      <Field label="Tags">
+        <TagEditor value={task.tags} onChange={(tag_ids) => save({ tag_ids })} />
+      </Field>
+    </InboxCard>
+  )
+}
+
 type NoteCardProps = { note: NoteSummary; projects: ProjectSummary[]; save: Save<NoteUpdate> }
 
 function NoteCard({ note, projects, save }: NoteCardProps) {
@@ -153,6 +179,7 @@ export function InboxPage() {
   const updateItem = useUpdateItem()
   const updateProject = useUpdateProject()
   const updateNote = useUpdateNote()
+  const updateTask = useUpdateTask()
 
   const header = (
     <PageHeader
@@ -181,7 +208,7 @@ export function InboxPage() {
     )
   }
 
-  const total = inbox.items.length + inbox.projects.length + inbox.notes.length
+  const total = inbox.items.length + inbox.projects.length + inbox.tasks.length + inbox.notes.length
   return (
     <>
       {header}
@@ -216,6 +243,18 @@ export function InboxPage() {
                 project={project}
                 save={(data, onSuccess) =>
                   updateProject.mutate({ projectId: project.id, data }, { onSuccess })
+                }
+              />
+            ))}
+          </Section>
+          <Section title="Tasks" count={inbox.tasks.length}>
+            {inbox.tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                projects={projects}
+                save={(data, onSuccess) =>
+                  updateTask.mutate({ taskId: task.id, data }, { onSuccess })
                 }
               />
             ))}

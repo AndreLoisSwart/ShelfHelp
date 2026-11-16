@@ -19,6 +19,8 @@ const ProjectDetailPage = page(
   'ProjectDetailPage',
 )
 const ProjectsPage = page(() => import('@/features/projects/projects-page'), 'ProjectsPage')
+const TaskDetailPage = page(() => import('@/features/tasks/task-detail-page'), 'TaskDetailPage')
+const TasksPage = page(() => import('@/features/tasks/tasks-page'), 'TasksPage')
 const SettingsPage = page(() => import('@/features/settings/settings-page'), 'SettingsPage')
 const ShoppingPage = page(() => import('@/features/shopping/shopping-page'), 'ShoppingPage')
 
@@ -29,6 +31,8 @@ export default function App() {
         <Route index element={<DashboardPage />} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="projects/:id" element={<ProjectDetailPage />} />
+        <Route path="tasks" element={<TasksPage />} />
+        <Route path="tasks/:id" element={<TaskDetailPage />} />
         <Route path="items" element={<ItemsPage />} />
         <Route path="items/:id" element={<ItemDetailPage />} />
         <Route path="notes" element={<NotesPage />} />

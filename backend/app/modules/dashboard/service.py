@@ -11,7 +11,7 @@ from app.modules.items.models import Item, ItemStatus
 from app.modules.items.schemas import ItemSummary
 from app.modules.projects import service as projects
 from app.modules.projects.models import Project, ProjectStatus
-from app.modules.projects.schemas import ProjectSummary
+from app.modules.projects.summaries import summaries
 from app.modules.settings import service as settings
 
 RUNNING_LOW_LIMIT = 6
@@ -31,7 +31,6 @@ def stale_projects(session: Session, stale_after_days: int) -> list[Project]:
 
 def dashboard(session: Session) -> Dashboard:
     active = projects.list_projects(session, [ProjectStatus.ACTIVE])
-    readiness = projects.readiness(session, [p.id for p in active])
 
     low_filter = Item.status.in_(RUNNING_LOW)
     running_low = session.scalars(
@@ -44,10 +43,7 @@ def dashboard(session: Session) -> Dashboard:
 
     stale_after_days = settings.get_settings(session).stale_after_days
     return Dashboard(
-        active=[
-            ProjectSummary.model_validate(p).model_copy(update={"readiness": readiness[p.id]})
-            for p in active
-        ],
+        active=summaries(session, active),
         running_low=[ItemSummary.model_validate(item) for item in running_low],
         running_low_total=running_low_total or 0,
         stale=[

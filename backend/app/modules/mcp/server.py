@@ -54,19 +54,24 @@ from app.modules.shops import router as shops
 from app.modules.shops.schemas import ShopCreate, ShopOut
 from app.modules.tags import router as tags
 from app.modules.tags.schemas import TagCreate, TagOut
+from app.modules.tasks import router as tasks
+from app.modules.tasks.schemas import TaskCreate, TaskDetail, TaskOrder, TaskSummary, TaskUpdate
 
 INSTRUCTIONS = """\
 Shelf-help is the user's personal manager for projects, the items they need, and notes.
 
-- Projects have a status (someday, planned, active, paused, done, abandoned), a next step,
+- Projects have a status (someday, planned, active, paused, done, abandoned), tasks,
   linked items, notes and links. Readiness counts linked required items on hand.
+- Tasks are things to do, in a project or standalone, done or not. A project's open tasks
+  are ordered, and the first one is its next step (next_task): to set the next step, add
+  a task and move it to the top with reorder_tasks. Tasks can link items and have tags.
 - Items are standalone things (tools, materials, household goods) with a status: have,
   low, out or need (to get). Low, out and need items make up the shopping list, grouped by
   zone (the top-level location). Items are linked to projects, never owned by them.
 - Items can list the shops that sell them. Filter the shopping list by shop to answer
   "what do I need from <shop>?"; items with no shop set are included, since they could
   be bought anywhere.
-- Locations form a tree; tags label projects and items. Look up ids with list_locations,
+- Locations form a tree; tags label projects, tasks and items. Look up ids with list_locations,
   list_tags and list_shops before using them.
 - Tags given to a location are added to items put there (or in a sub-location), and parts
   get their parent item's tags. Tags are only ever added this way, never removed.
@@ -89,6 +94,8 @@ SessionOpener = Callable[[], AbstractContextManager[Session]]
 
 class ProjectContext(BaseModel):
     project: ProjectDetail
+    # Open tasks in order (the first is the next step), then done ones.
+    tasks: list[TaskSummary]
     items: list[ProjectItemOut]
     notes: list[NoteSummary]
     links: list[LinkOut]
@@ -117,7 +124,10 @@ def _unmarked(results: SearchResults) -> SearchResults:
         ]
 
     return SearchResults(
-        projects=hits(results.projects), items=hits(results.items), notes=hits(results.notes)
+        projects=hits(results.projects),
+        tasks=hits(results.tasks),
+        items=hits(results.items),
+        notes=hits(results.notes),
     )
 
 
@@ -162,9 +172,9 @@ def build_server(open_session: SessionOpener) -> MCPServer:
 
     @tool(READ)
     def search(query: Annotated[str, Field(max_length=200)]) -> SearchResults:
-        """Full-text search over project names, next steps and descriptions, item names and
-        descriptions, and note titles and bodies. Every word must match the start of a word.
-        Up to 5 results of each kind, best first."""
+        """Full-text search over project names and descriptions, task titles and
+        descriptions, item names and descriptions, and note titles and bodies. Every word
+        must match the start of a word. Up to 5 results of each kind, best first."""
         with open_session() as session:
             return _unmarked(search_router.search(session, query))
 
@@ -214,7 +224,7 @@ def build_server(open_session: SessionOpener) -> MCPServer:
 
     @tool(READ)
     def list_tags() -> list[TagOut]:
-        """All tags, with how many items and projects use each."""
+        """All tags, with how many items, projects and tasks use each."""
         with open_session() as session:
             return tags.list_tags(session)
 
@@ -236,10 +246,11 @@ def build_server(open_session: SessionOpener) -> MCPServer:
 
     @tool(READ)
     def get_project(project_id: int) -> ProjectContext:
-        """A project with its description, linked items, notes and links."""
+        """A project with its description, tasks, linked items, notes and links."""
         with open_session() as session:
             return ProjectContext(
                 project=projects.get_project(project_id, session),
+                tasks=tasks.list_tasks(session, project_id),
                 items=projects.list_project_items(project_id, session),
                 notes=notes.list_notes(session, project_id),
                 links=links.list_links(OwnerType.PROJECT, project_id, session),
@@ -249,16 +260,15 @@ def build_server(open_session: SessionOpener) -> MCPServer:
     def create_project(
         name: str,
         status: ProjectStatus = ProjectStatus.SOMEDAY,
-        next_step: str = "",
         description_md: str = "",
         tag_ids: list[int] | None = None,
         in_inbox: bool = False,
     ) -> ProjectDetail:
-        """Creates a project. description_md is markdown."""
+        """Creates a project. description_md is markdown. Add its next step with
+        create_task."""
         data = ProjectCreate(
             name=name,
             status=status,
-            next_step=next_step,
             description_md=description_md,
             tag_ids=tag_ids or [],
             in_inbox=in_inbox,
@@ -271,12 +281,11 @@ def build_server(open_session: SessionOpener) -> MCPServer:
         project_id: int,
         name: str | None = None,
         status: ProjectStatus | None = None,
-        next_step: str | None = None,
         tag_ids: list[int] | None = None,
     ) -> ProjectDetail:
         """Changes only the fields given. tag_ids replaces the project's tags.
         The description can't be changed here."""
-        data = ProjectUpdate(**_set(name=name, status=status, next_step=next_step, tag_ids=tag_ids))
+        data = ProjectUpdate(**_set(name=name, status=status, tag_ids=tag_ids))
         with open_session() as session:
             return projects.update_project(project_id, data, session)
 
@@ -299,6 +308,83 @@ def build_server(open_session: SessionOpener) -> MCPServer:
         with open_session() as session:
             projects.unlink_project_item(project_id, item_id, session)
         return "Unlinked"
+
+    # --- Tasks ---
+
+    @tool(READ)
+    def list_tasks(
+        project_id: int | None = None,
+        no_project: bool = False,
+        tag_ids: list[int] | None = None,
+        done: bool | None = None,
+    ) -> list[TaskSummary]:
+        """Tasks: open ones first, in order, then done ones, most recently done first.
+        no_project lists only standalone tasks. done=false lists only open tasks."""
+        with open_session() as session:
+            return tasks.list_tasks(session, project_id, no_project, tag_ids, done)
+
+    @tool(READ)
+    def get_task(task_id: int) -> TaskDetail:
+        """A task with its description, project, tags and linked items."""
+        with open_session() as session:
+            return tasks.get_task(task_id, session)
+
+    @tool(WRITE)
+    def create_task(
+        title: Annotated[str, Field(max_length=200)],
+        description: str = "",
+        project_id: int | None = None,
+        tag_ids: list[int] | None = None,
+        item_ids: list[int] | None = None,
+        in_inbox: bool = False,
+    ) -> TaskDetail:
+        """Creates a task, at the bottom of its project's open tasks (or of the standalone
+        ones, without project_id). It gets the project's tags. item_ids links items it
+        needs. description is plain text."""
+        data = TaskCreate(
+            title=title,
+            description=description,
+            project_id=project_id,
+            tag_ids=tag_ids or [],
+            item_ids=item_ids or [],
+            in_inbox=in_inbox,
+        )
+        with open_session() as session:
+            return tasks.create_task(data, session)
+
+    @tool(WRITE)
+    def update_task(
+        task_id: int,
+        title: Annotated[str | None, Field(max_length=200)] = None,
+        project_id: int | None = None,
+        tag_ids: list[int] | None = None,
+        item_ids: list[int] | None = None,
+        done: bool | None = None,
+    ) -> TaskDetail:
+        """Changes only the fields given. tag_ids and item_ids replace the task's tags and
+        linked items. done=true ticks it off, done=false reopens it. Moving it to a
+        project puts it at the bottom there. The description can't be changed here."""
+        data = TaskUpdate(
+            **_set(
+                title=title, project_id=project_id, tag_ids=tag_ids, item_ids=item_ids, done=done
+            )
+        )
+        with open_session() as session:
+            return tasks.update_task(task_id, data, session)
+
+    @tool(WRITE)
+    def complete_task(task_id: int) -> TaskDetail:
+        """Ticks a task off. For a project's next step, the following task becomes next."""
+        with open_session() as session:
+            return tasks.update_task(task_id, TaskUpdate(done=True), session)
+
+    @tool(WRITE)
+    def reorder_tasks(project_id: int | None, task_ids: list[int]) -> list[TaskSummary]:
+        """Puts open tasks of a project (project_id null: the standalone tasks) in this
+        order, at the top; the rest follow in their current order. task_ids=[id] makes
+        that task the next step."""
+        with open_session() as session:
+            return tasks.reorder_tasks(TaskOrder(project_id=project_id, task_ids=task_ids), session)
 
     # --- Items ---
 
@@ -422,11 +508,13 @@ def build_server(open_session: SessionOpener) -> MCPServer:
     # --- Inbox, tags, shops and links ---
 
     @tool(WRITE)
-    def mark_sorted(record_type: Literal["project", "item", "note"], record_id: int) -> str:
+    def mark_sorted(record_type: Literal["project", "task", "item", "note"], record_id: int) -> str:
         """Takes a record out of the inbox once its details are filled in."""
         with open_session() as session:
             if record_type == "project":
                 projects.update_project(record_id, ProjectUpdate(in_inbox=False), session)
+            elif record_type == "task":
+                tasks.update_task(record_id, TaskUpdate(in_inbox=False), session)
             elif record_type == "item":
                 items.update_item(record_id, ItemUpdate(in_inbox=False), session)
             else:
@@ -447,7 +535,7 @@ def build_server(open_session: SessionOpener) -> MCPServer:
 
     @tool(WRITE)
     def add_link(owner_type: OwnerType, owner_id: int, url: str, title: str = "") -> LinkOut:
-        """Adds a web link (http or https) to a project, item or note."""
+        """Adds a web link (http or https) to a project, item or note (not a task)."""
         data = LinkCreate(owner_type=owner_type, owner_id=owner_id, url=url, title=title)
         with open_session() as session:
             return links.create_link(data, session)

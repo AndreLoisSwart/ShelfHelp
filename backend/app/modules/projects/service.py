@@ -28,7 +28,7 @@ def get_project(session: Session, project_id: int) -> Project:
 
 def touch(project: Project) -> None:
     """Marks the project as worked on. Call whenever it or anything attached to it changes:
-    the project itself, its notes, item links, links or attachments."""
+    the project itself, its notes, tasks, item links, links or attachments."""
     project.last_touched_at = utcnow()
 
 
@@ -80,7 +80,6 @@ def create_project(session: Session, data: ProjectCreate) -> Project:
         name=data.name,
         status=data.status,
         description_md=data.description_md,
-        next_step=data.next_step.strip(),
         tags=tags.get_tags(session, data.tag_ids),
         in_inbox=data.in_inbox,
     )
@@ -94,8 +93,6 @@ def update_project(session: Session, project_id: int, data: ProjectUpdate) -> Pr
     changes = data.model_dump(exclude_unset=True)
     if (tag_ids := changes.pop("tag_ids", None)) is not None:
         project.tags = tags.get_tags(session, tag_ids)
-    if "next_step" in changes:
-        changes["next_step"] = changes["next_step"].strip()
     for field, value in changes.items():
         setattr(project, field, value)
     project.updated_at = utcnow()
@@ -107,7 +104,8 @@ def update_project(session: Session, project_id: int, data: ProjectUpdate) -> Pr
 def delete_project(session: Session, project_id: int) -> None:
     project = get_project(session, project_id)
     # Its links, attachments and item links go with it (ON DELETE CASCADE), but files on
-    # disk don't: remove them once the delete is committed. Its notes are kept.
+    # disk don't: remove them once the delete is committed. Its tasks go too; its notes
+    # are kept.
     files = storage.stored_paths_of(session, Attachment.project_id, project_id)
     session.delete(project)
     session.commit()

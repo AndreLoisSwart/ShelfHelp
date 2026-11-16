@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.markdown import plain_text
 from app.modules.search.index import TABLE
-from app.modules.search.schemas import ItemHit, ProjectHit, SearchHit, SearchResults
+from app.modules.search.schemas import ItemHit, ProjectHit, SearchHit, SearchResults, TaskHit
 
 LIMIT = 5
 MARK_START, MARK_END = "\x02", "\x03"
@@ -20,8 +20,11 @@ def match_query(q: str) -> str | None:
     return " ".join(f'"{word}"*' for word in words) or None
 
 
-def _hits(session: Session, kind: str, table: str, match: str, with_status: bool) -> list[dict]:
-    status = f", {table}.status" if with_status else ""
+def _hits(
+    session: Session, kind: str, table: str, match: str, extra: tuple[str, str] | None = None
+) -> list[dict]:
+    """extra: a field to add to each hit, as (name, SQL expression on the record)."""
+    status = f", {extra[1].format(t=table)}" if extra else ""
     rows = session.execute(
         text(
             f"SELECT {TABLE}.record_id, "
@@ -37,8 +40,8 @@ def _hits(session: Session, kind: str, table: str, match: str, with_status: bool
     hits = []
     for row in rows:
         hit = {"id": row[0], "title": row[1], "snippet": plain_text(row[2])}
-        if with_status:
-            hit["status"] = row[3]
+        if extra:
+            hit[extra[0]] = row[3]
         hits.append(hit)
     return hits
 
@@ -46,9 +49,14 @@ def _hits(session: Session, kind: str, table: str, match: str, with_status: bool
 def search(session: Session, q: str) -> SearchResults:
     match = match_query(q)
     if match is None:
-        return SearchResults(projects=[], items=[], notes=[])
+        return SearchResults(projects=[], tasks=[], items=[], notes=[])
+    status = ("status", "{t}.status")
     return SearchResults(
-        projects=[ProjectHit(**h) for h in _hits(session, "project", "projects", match, True)],
-        items=[ItemHit(**h) for h in _hits(session, "item", "items", match, True)],
-        notes=[SearchHit(**h) for h in _hits(session, "note", "notes", match, False)],
+        projects=[ProjectHit(**h) for h in _hits(session, "project", "projects", match, status)],
+        tasks=[
+            TaskHit(**h)
+            for h in _hits(session, "task", "tasks", match, ("done", "{t}.done_at IS NOT NULL"))
+        ],
+        items=[ItemHit(**h) for h in _hits(session, "item", "items", match, status)],
+        notes=[SearchHit(**h) for h in _hits(session, "note", "notes", match)],
     )

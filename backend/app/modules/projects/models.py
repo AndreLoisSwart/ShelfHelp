@@ -46,7 +46,6 @@ class Project(Base):
             values_callable=lambda e: [m.value for m in e],
         )
     )
-    next_step: Mapped[str] = mapped_column(String(500), default="")
     in_inbox: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)

@@ -3,8 +3,11 @@
 ## Tables
 
 ```
-Project      id, name, description_md, status, next_step,
+Project      id, name, description_md, status,
              in_inbox, created_at, updated_at, last_touched_at
+
+Task         id, title, description, project_id (nullable → Project), position,
+             done_at (nullable), in_inbox, created_at, updated_at
 
 Note         id, project_id (nullable → Project), title, body_md,
              in_inbox, created_at, updated_at
@@ -18,9 +21,12 @@ Location     id, name, parent_id (nullable → Location)
 ProjectItem  project_id, item_id, requirement, note (up to 200 characters)
              PK (project_id, item_id)
 
+TaskItem     task_id, item_id
+
 Tag          id, name (unique, ignoring case)
 ProjectTag   project_id, tag_id
 ItemTag      item_id, tag_id
+TaskTag      task_id, tag_id
 LocationTag  location_id, tag_id
 
 Shop         id, name (unique, ignoring case)
@@ -48,7 +54,7 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
 ## Rules
 
 **Inbox**
-- Quick-add creates the real record (Project, Item or Note) with `in_inbox = true`. There is no separate capture table.
+- Quick-add creates the real record (Project, Item, Note or Task) with `in_inbox = true`. There is no separate capture table.
 - The inbox shows every record with `in_inbox = true`, newest first. Only an explicit "Done" clears the flag, from the inbox or the record's page; filling in details doesn't, so nothing leaves the inbox by accident.
 - Quick-add sets the type and name, plus Have or Need to get for an item. Projects start as `someday`.
 - Inbox records still count everywhere else, including search and the shopping list.
@@ -71,8 +77,18 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
 
 **Projects**
 - New projects default to status `someday`.
-- `next_step` is a single line of up to 500 characters and may be empty.
+- A project's **next step** is its first open task (see Tasks). It is computed, never stored.
 - Lists are ordered by `last_touched_at`, most recent first.
+
+**Tasks**
+- A task belongs to a project or stands alone (`project_id` null). Moving it between projects, or out of one, is allowed.
+- `title` is up to 200 characters; `description` is optional plain text.
+- Done or not is the only state: `done_at` is set when it's ticked off and cleared when it's reopened. There are no due dates or subtasks.
+- Open tasks are ordered by `position`, within their project or among the standalone tasks. New tasks, and tasks moved into a project, go to the bottom. Reordering sends the full order of a project's (or the standalone) open tasks.
+- Done tasks stay on the project, most recently done first; the app shows them collapsed.
+- A task created in a project, or moved into one, gets the project's tags. Like location tags, they are copied, only ever added.
+- Items are linked to tasks, never owned. Deleting either removes the link. Deleting a project deletes its tasks.
+- Creating, changing, reordering or deleting a task touches its project (both projects when it moves).
 
 **Item links**
 - Linking an item that is already linked updates its requirement and note instead.
@@ -86,7 +102,7 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
 
 **Tags**
 - Tag names are unique ignoring case, so "Wood" and "wood" are the same tag.
-- Deleting a tag removes it from every item and project.
+- Deleting a tag removes it from every item, project and task.
 
 **Links and attachments**
 - Each record belongs to exactly one of project, item or note, enforced with a CHECK constraint across the three nullable foreign keys.
@@ -105,10 +121,13 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
   - any of its notes
   - its item links
   - its links or attachments
+  - its tasks
 - Each module that changes something attached to a project calls `projects.service.touch()`.
 - "Stale" means an `active` or `paused` project whose `last_touched_at` is older than a threshold. The threshold is `AppSettings.stale_after_days`, set in Settings, and defaults to 3 weeks.
 
 **Computed, never stored**
+- **Next step:** a project's open task with the lowest `position`, plus counts of its open and done tasks.
+- **Task readiness:** a task's linked items with status `have` or `low`, out of all its linked items.
 - **Suggested project tags:** tags on a project's linked items that the project lacks, most used first, up to 5. Offered on the project's Overview tab, never added automatically.
 - **Readiness:** for a project, the count of `required` linked items with status `have` or `low`, out of all `required` linked items. Nice-to-have items are shown separately.
 - **Shopping list:** all items with status `low`, `out` or `need`, grouped by the top-level ancestor of their location. Items without a location go under "Unassigned".
@@ -117,8 +136,8 @@ AppSettings  id (always 1), stale_after_days (default 21, 7 to 365)
   - Filtered by a shop, it keeps the items sold there plus the items with no shop set, so nothing drops off the list for want of a shop. The shopping page filters on the client; the API's `shop_id` does the same for Claude.
 
 **Search**
-- Covers project name, description and next step; item name and description; note title and body. Use SQLite FTS5.
-- One FTS5 table, `search_index` (kind, record_id, title, body), kept in sync by SQLite triggers on `projects`, `items` and `notes`, so no code path can forget it. It is not a mapped model: `app/modules/search/index.py` holds its SQL, and Alembic ignores it.
-  - SQLite drops a table's triggers with the table, and batch migrations rebuild tables. A migration that rebuilds `projects`, `items` or `notes` must recreate their triggers. `tests/test_db.py` fails if they're missing.
+- Covers project name and description; task title and description; item name and description; note title and body. Use SQLite FTS5.
+- One FTS5 table, `search_index` (kind, record_id, title, body), kept in sync by SQLite triggers on `projects`, `tasks`, `items` and `notes`, so no code path can forget it. It is not a mapped model: `app/modules/search/index.py` holds its SQL, and Alembic ignores it.
+  - SQLite drops a table's triggers with the table, and batch migrations rebuild tables. A migration that rebuilds `projects`, `tasks`, `items` or `notes` must recreate their triggers. `tests/test_db.py` fails if they're missing.
 - Tokenizer `unicode61 remove_diacritics 2`: case and accents are ignored. Every word typed must match the start of a word ("tab sa" finds "Table saw"). Words are quoted, so nothing typed can use FTS5 query syntax.
 - Title matches rank above body matches. Up to 5 results per kind, each with its title and the best-matching stretch of the body as plain text, matched words marked with the control characters U+0002 and U+0003. The frontend renders them as text, never HTML.

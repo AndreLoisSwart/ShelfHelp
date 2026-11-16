@@ -10,4 +10,5 @@ export interface TagOut {
   name: string;
   item_count: number;
   project_count: number;
+  task_count: number;
 }

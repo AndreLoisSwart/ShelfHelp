@@ -28,6 +28,7 @@ from app.modules.settings import router as app_settings
 from app.modules.shopping import router as shopping
 from app.modules.shops import router as shops
 from app.modules.tags import router as tags
+from app.modules.tasks import router as tasks
 
 
 def operation_id(route: APIRoute) -> str:
@@ -71,6 +72,7 @@ def create_app() -> FastAPI:
     api.include_router(locations.router)
     api.include_router(items.router)
     api.include_router(projects.router)
+    api.include_router(tasks.router)
     api.include_router(notes.router)
     api.include_router(tags.router)
     api.include_router(shops.router)

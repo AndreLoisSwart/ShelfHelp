@@ -73,5 +73,5 @@ def test_search_index_matches_migrations(tmp_path, monkeypatch):
     fresh = create_db_engine(f"sqlite:///{tmp_path / 'fresh.db'}")
     Base.metadata.create_all(fresh)
     expected = _search_schema(fresh)
-    assert len(expected) == 15  # the table, its five shadow tables and nine triggers
+    assert len(expected) == 18  # the table, its five shadow tables and twelve triggers
     assert migrated == expected

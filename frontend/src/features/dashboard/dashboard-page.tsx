@@ -4,8 +4,6 @@ import { Link } from 'react-router'
 import { errorMessage } from '@/api/fetcher'
 import { useGetDashboard } from '@/api/generated/dashboard/dashboard'
 import type { Dashboard, ProjectSummary, StaleProject } from '@/api/generated/model'
-import { useUpdateProject } from '@/api/generated/projects/projects'
-import { EditableText } from '@/components/editable-text'
 import { EmptyState } from '@/components/empty-state'
 import { PageHeader } from '@/components/page-header'
 import { ReadinessBar } from '@/components/readiness-bar'
@@ -16,6 +14,7 @@ import { useLocationTree } from '@/features/locations/location-tree'
 import { daysAsWeeks, durationSince, timeAgo } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { useQuickAdd } from '@/features/inbox/use-quick-add'
+import { NextStep } from '@/features/tasks/next-step'
 import { CardsSkeleton } from '@/components/loading'
 
 type SectionProps = {
@@ -54,26 +53,23 @@ function Quiet({ children }: { children: ReactNode }) {
   )
 }
 
-/** Like ProjectCard, but the next step is edited right here instead of linking through. */
+/** Like ProjectCard, but the next step is ticked off (or added) right here. */
 function ActiveProjectCard({ project, stale }: { project: ProjectSummary; stale: boolean }) {
-  const updateProject = useUpdateProject()
   return (
     <div className="rounded-lg border bg-card p-3 text-card-foreground">
       <Link to={`/projects/${project.id}`} className="leading-snug font-medium hover:underline">
         {project.name}
       </Link>
-      <div className="mt-1 flex items-baseline gap-1 text-sm">
-        <span className="shrink-0 text-muted-foreground">Next:</span>
-        <EditableText
-          value={project.next_step}
-          onSave={(next_step) =>
-            updateProject.mutate({ projectId: project.id, data: { next_step } })
-          }
-          aria-label={`Next step for ${project.name}`}
-          placeholder="Add a next step"
-          allowEmpty
-          className="-my-1 min-w-0 flex-1"
-        />
+      <div className="mt-2 text-sm">
+        <NextStep projectId={project.id} projectName={project.name} nextTask={project.next_task} />
+        {project.task_counts.open > 1 && (
+          <Link
+            to={`/projects/${project.id}?tab=tasks`}
+            className="mt-1 block pl-7 text-xs text-muted-foreground hover:text-foreground"
+          >
+            {project.task_counts.open - 1} more to do
+          </Link>
+        )}
       </div>
       <ReadinessBar readiness={project.readiness} className="mt-2" />
       <p className={cn('mt-2 text-xs text-muted-foreground', stale && 'text-status-orange')}>

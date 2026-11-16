@@ -7,9 +7,11 @@
 import type { ItemHit } from './itemHit';
 import type { ProjectHit } from './projectHit';
 import type { SearchHit } from './searchHit';
+import type { TaskHit } from './taskHit';
 
 export interface SearchResults {
   projects: ProjectHit[];
+  tasks: TaskHit[];
   items: ItemHit[];
   notes: SearchHit[];
 }

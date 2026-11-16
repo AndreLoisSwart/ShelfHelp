@@ -924,6 +924,316 @@
         }
       }
     },
+    "/api/tasks": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "List Tasks",
+        "description": "Open tasks first, in order; then done ones, most recently done first.\nno_project lists only standalone tasks. Several tag_id values match any of them.",
+        "operationId": "list_tasks",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "no_project",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "No Project"
+            }
+          },
+          {
+            "name": "tag_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tag Id"
+            }
+          },
+          {
+            "name": "done",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Done"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskSummary"
+                  },
+                  "title": "Response List Tasks"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Create Task",
+        "description": "Added at the bottom of its project's tasks (or the standalone ones).",
+        "operationId": "create_task",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/order": {
+      "put": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Reorder Tasks",
+        "description": "Sets the order of open tasks. Returns them all, in their new order.",
+        "operationId": "reorder_tasks",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskOrder"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskSummary"
+                  },
+                  "type": "array",
+                  "title": "Response Reorder Tasks"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/{task_id}": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Get Task",
+        "operationId": "get_task",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Update Task",
+        "operationId": "update_task",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Delete Task",
+        "operationId": "delete_task",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Task Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/notes": {
       "get": {
         "tags": [
@@ -2219,6 +2529,13 @@
             "type": "array",
             "title": "Projects"
           },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TaskSummary"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
           "notes": {
             "items": {
               "$ref": "#/components/schemas/NoteSummary"
@@ -2231,6 +2548,7 @@
         "required": [
           "items",
           "projects",
+          "tasks",
           "notes"
         ],
         "title": "Inbox"
@@ -2890,6 +3208,24 @@
         ],
         "title": "McpToken"
       },
+      "NextTask": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "NextTask"
+      },
       "NoteCreate": {
         "properties": {
           "title": {
@@ -3108,12 +3444,6 @@
             "title": "Description Md",
             "default": ""
           },
-          "next_step": {
-            "type": "string",
-            "maxLength": 500,
-            "title": "Next Step",
-            "default": ""
-          },
           "tag_ids": {
             "items": {
               "type": "integer"
@@ -3147,10 +3477,6 @@
           "status": {
             "$ref": "#/components/schemas/ProjectStatus"
           },
-          "next_step": {
-            "type": "string",
-            "title": "Next Step"
-          },
           "in_inbox": {
             "type": "boolean",
             "title": "In Inbox"
@@ -3174,6 +3500,23 @@
               "required": 0,
               "nice_ready": 0,
               "nice_to_have": 0
+            }
+          },
+          "next_task": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextTask"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task_counts": {
+            "$ref": "#/components/schemas/TaskCounts",
+            "default": {
+              "open": 0,
+              "done": 0
             }
           },
           "description_md": {
@@ -3204,11 +3547,12 @@
           "id",
           "name",
           "status",
-          "next_step",
           "in_inbox",
           "tags",
           "last_touched_at",
           "readiness",
+          "next_task",
+          "task_counts",
           "description_md",
           "suggested_tags",
           "created_at",
@@ -3328,10 +3672,6 @@
           "status": {
             "$ref": "#/components/schemas/ProjectStatus"
           },
-          "next_step": {
-            "type": "string",
-            "title": "Next Step"
-          },
           "in_inbox": {
             "type": "boolean",
             "title": "In Inbox"
@@ -3356,6 +3696,23 @@
               "nice_ready": 0,
               "nice_to_have": 0
             }
+          },
+          "next_task": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextTask"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "task_counts": {
+            "$ref": "#/components/schemas/TaskCounts",
+            "default": {
+              "open": 0,
+              "done": 0
+            }
           }
         },
         "type": "object",
@@ -3363,11 +3720,12 @@
           "id",
           "name",
           "status",
-          "next_step",
           "in_inbox",
           "tags",
           "last_touched_at",
-          "readiness"
+          "readiness",
+          "next_task",
+          "task_counts"
         ],
         "title": "ProjectSummary"
       },
@@ -3406,18 +3764,6 @@
               }
             ],
             "title": "Description Md"
-          },
-          "next_step": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 500
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Next Step"
           },
           "tag_ids": {
             "anyOf": [
@@ -3523,6 +3869,13 @@
             "type": "array",
             "title": "Projects"
           },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TaskHit"
+            },
+            "type": "array",
+            "title": "Tasks"
+          },
           "items": {
             "items": {
               "$ref": "#/components/schemas/ItemHit"
@@ -3541,6 +3894,7 @@
         "type": "object",
         "required": [
           "projects",
+          "tasks",
           "items",
           "notes"
         ],
@@ -3813,6 +4167,10 @@
           "project_count": {
             "type": "integer",
             "title": "Project Count"
+          },
+          "task_count": {
+            "type": "integer",
+            "title": "Task Count"
           }
         },
         "type": "object",
@@ -3820,7 +4178,8 @@
           "id",
           "name",
           "item_count",
-          "project_count"
+          "project_count",
+          "task_count"
         ],
         "title": "TagOut"
       },
@@ -3869,6 +4228,409 @@
           "count"
         ],
         "title": "TaggedCount"
+      },
+      "TaskCounts": {
+        "properties": {
+          "open": {
+            "type": "integer",
+            "title": "Open",
+            "default": 0
+          },
+          "done": {
+            "type": "integer",
+            "title": "Done",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "open",
+          "done"
+        ],
+        "title": "TaskCounts"
+      },
+      "TaskCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "tag_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Tag Ids",
+            "default": []
+          },
+          "item_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Item Ids",
+            "default": []
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "TaskCreate"
+      },
+      "TaskDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "done_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Done At"
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/TaskReadiness",
+            "default": {
+              "ready": 0,
+              "total": 0
+            }
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "project",
+          "position",
+          "done_at",
+          "in_inbox",
+          "tags",
+          "readiness",
+          "description",
+          "items",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "TaskDetail"
+      },
+      "TaskHit": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "snippet": {
+            "type": "string",
+            "title": "Snippet"
+          },
+          "done": {
+            "type": "boolean",
+            "title": "Done"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "snippet",
+          "done"
+        ],
+        "title": "TaskHit"
+      },
+      "TaskOrder": {
+        "properties": {
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "task_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Task Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "task_ids"
+        ],
+        "title": "TaskOrder",
+        "description": "Open tasks of one project (or the standalone ones, project_id null), in their new\norder. Open tasks left out keep their order, after these."
+      },
+      "TaskReadiness": {
+        "properties": {
+          "ready": {
+            "type": "integer",
+            "title": "Ready",
+            "default": 0
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "ready",
+          "total"
+        ],
+        "title": "TaskReadiness",
+        "description": "Linked items on hand (status have or low), out of all linked items."
+      },
+      "TaskSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "done_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Done At"
+          },
+          "in_inbox": {
+            "type": "boolean",
+            "title": "In Inbox"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagRef"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/TaskReadiness",
+            "default": {
+              "ready": 0,
+              "total": 0
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "project",
+          "position",
+          "done_at",
+          "in_inbox",
+          "tags",
+          "readiness"
+        ],
+        "title": "TaskSummary"
+      },
+      "TaskUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "project_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Id"
+          },
+          "tag_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag Ids"
+          },
+          "item_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Item Ids"
+          },
+          "done": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Done"
+          },
+          "in_inbox": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "In Inbox"
+          }
+        },
+        "type": "object",
+        "title": "TaskUpdate",
+        "description": "Only the fields sent are changed. project_id: null makes it standalone.\ndone: true ticks it off, false reopens it."
       },
       "ValidationError": {
         "properties": {

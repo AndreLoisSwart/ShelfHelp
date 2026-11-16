@@ -1,5 +1,5 @@
 import { FolderKanban, Plus, Trash2 } from 'lucide-react'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { errorMessage } from '@/api/fetcher'
 import type { ProjectUpdate } from '@/api/generated/model'
 import {
@@ -20,7 +20,9 @@ import { InboxNotice } from '@/features/inbox/inbox-notice'
 import { NewNoteDialog } from '@/features/notes/new-note-dialog'
 import { NoNotesYet, NotesList } from '@/features/notes/notes-list'
 import { TagEditor } from '@/features/tags/tag-editor'
-import { formatDate, timeAgo } from '@/lib/format'
+import { NextStep } from '@/features/tasks/next-step'
+import { ProjectTasksTab } from '@/features/tasks/project-tasks-tab'
+import { formatDate, plural, timeAgo } from '@/lib/format'
 import { useAutosave } from '@/lib/use-autosave'
 import { ProjectItemsTab } from './project-items-tab'
 import { ProjectStatusToggle } from './project-status-toggle'
@@ -84,17 +86,19 @@ export function ProjectDetailPage() {
       <ProjectStatusToggle value={project.status} onChange={(status) => save({ status })} />
       <ReadinessBar readiness={project.readiness} detailed className="mt-5 max-w-md" />
       <div className="mt-5">
-        <label htmlFor="next-step" className="text-sm font-medium">
-          Next step
-        </label>
-        <EditableText
-          value={project.next_step}
-          onSave={(next_step) => save({ next_step })}
-          id="next-step"
-          aria-label="Next step"
-          placeholder="What's the next thing to do?"
-          allowEmpty
-          className="-ml-2 text-base"
+        <div className="mb-1 flex items-baseline gap-2">
+          <h2 className="text-sm font-medium">Next step</h2>
+          {project.task_counts.open + project.task_counts.done > 0 && (
+            <Link to="?tab=tasks" className="text-xs text-muted-foreground hover:text-foreground">
+              {plural(project.task_counts.open, 'task')} to do · {project.task_counts.done} done
+            </Link>
+          )}
+        </div>
+        <NextStep
+          projectId={projectId}
+          projectName={project.name}
+          nextTask={project.next_task}
+          className="text-base"
         />
       </div>
     </>
@@ -146,6 +150,11 @@ export function ProjectDetailPage() {
               </div>
             </div>
           ),
+        },
+        {
+          value: 'tasks',
+          label: 'Tasks',
+          content: <ProjectTasksTab projectId={projectId} />,
         },
         {
           value: 'notes',

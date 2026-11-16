@@ -13,7 +13,6 @@ export interface ProjectUpdate {
   name?: string | null;
   status?: ProjectStatus | null;
   description_md?: string | null;
-  next_step?: string | null;
   tag_ids?: number[] | null;
   in_inbox?: boolean | null;
 }

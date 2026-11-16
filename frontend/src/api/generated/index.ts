@@ -13,3 +13,4 @@ export * from './settings/settings';
 export * from './shopping/shopping';
 export * from './shops/shops';
 export * from './tags/tags';
+export * from './tasks/tasks';

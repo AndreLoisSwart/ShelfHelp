@@ -20,6 +20,20 @@ class Readiness(BaseModel):
     nice_to_have: int = 0
 
 
+class NextTask(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+
+
+class TaskCounts(BaseModel):
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
+    open: int = 0
+    done: int = 0
+
+
 class ProjectSummary(BaseModel):
     model_config = ConfigDict(
         from_attributes=True, json_schema_serialization_defaults_required=True
@@ -28,11 +42,13 @@ class ProjectSummary(BaseModel):
     id: int
     name: str
     status: ProjectStatus
-    next_step: str
     in_inbox: bool
     tags: list[TagRef]
     last_touched_at: datetime
     readiness: Readiness = Readiness()
+    # The next step: its first open task. Computed, never stored.
+    next_task: NextTask | None = None
+    task_counts: TaskCounts = TaskCounts()
 
 
 class ProjectDetail(ProjectSummary):
@@ -48,7 +64,6 @@ class ProjectCreate(BaseModel):
     name: Name
     status: ProjectStatus = ProjectStatus.SOMEDAY
     description_md: str = ""
-    next_step: str = Field(default="", max_length=500)
     tag_ids: list[int] = []
     in_inbox: bool = False
 
@@ -59,13 +74,12 @@ class ProjectUpdate(BaseModel):
     name: Name | None = None
     status: ProjectStatus | None = None
     description_md: str | None = None
-    next_step: str | None = Field(default=None, max_length=500)
     tag_ids: list[int] | None = None
     in_inbox: bool | None = None
 
-    _not_null = field_validator(
-        "name", "status", "description_md", "next_step", "tag_ids", "in_inbox"
-    )(reject_null)
+    _not_null = field_validator("name", "status", "description_md", "tag_ids", "in_inbox")(
+        reject_null
+    )
 
 
 class ProjectItemOut(BaseModel):

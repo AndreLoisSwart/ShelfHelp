@@ -44,14 +44,16 @@ def test_empty(api):
 
 
 def test_active_projects_most_recently_touched_first(api, age):
-    older = create(api, "projects", name="Older", status="active", next_step="Sand")
+    older = create(api, "projects", name="Older", status="active")
+    create(api, "tasks", title="Sand", project_id=older["id"])
     create(api, "projects", name="Newer", status="active")
     create(api, "projects", name="Someday", status="someday")
     create(api, "projects", name="Paused", status="paused")
     age(older["id"], 2)
     dashboard = api.get("/api/dashboard").json()
     assert names(dashboard["active"]) == ["Newer", "Older"]
-    assert dashboard["active"][1]["next_step"] == "Sand"
+    assert dashboard["active"][1]["next_task"]["title"] == "Sand"
+    assert dashboard["active"][0]["next_task"] is None
     assert dashboard["active"][1]["readiness"] == {
         "ready": 0,
         "required": 0,

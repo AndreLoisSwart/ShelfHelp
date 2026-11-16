@@ -1,4 +1,4 @@
-import { FolderKanban, NotebookPen, Package } from 'lucide-react'
+import { FolderKanban, ListTodo, NotebookPen, Package } from 'lucide-react'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -6,6 +6,7 @@ import { useCreateItem } from '@/api/generated/items/items'
 import type { ItemStatus } from '@/api/generated/model'
 import { useCreateNote } from '@/api/generated/notes/notes'
 import { useCreateProject } from '@/api/generated/projects/projects'
+import { useCreateTask } from '@/api/generated/tasks/tasks'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -23,11 +24,12 @@ import { useBackToClose } from '@/lib/use-back-to-close'
 import { usePersistentState } from '@/lib/use-persistent-state'
 import { QuickAddContext } from './use-quick-add'
 
-const KINDS = ['item', 'note', 'project'] as const
+const KINDS = ['item', 'task', 'note', 'project'] as const
 type Kind = (typeof KINDS)[number]
 
 const KIND_OPTIONS: Record<Kind, { label: string; icon: typeof Package; field: string }> = {
   item: { label: 'Item', icon: Package, field: 'Name' },
+  task: { label: 'Task', icon: ListTodo, field: 'Title' },
   note: { label: 'Note', icon: NotebookPen, field: 'Title' },
   project: { label: 'Project', icon: FolderKanban, field: 'Name' },
 }
@@ -53,10 +55,12 @@ export function QuickAddSheet({ open, onOpenChange }: Props) {
   const createItem = useCreateItem()
   const createNote = useCreateNote()
   const createProject = useCreateProject()
+  const createTask = useCreateTask()
   const [kind, setKind] = usePersistentState<Kind>('quick-add-kind', 'item', KINDS)
   const [name, setName] = useState('')
   const [status, setStatus] = useState<ItemStatus>('have')
-  const pending = createItem.isPending || createNote.isPending || createProject.isPending
+  const pending =
+    createItem.isPending || createNote.isPending || createProject.isPending || createTask.isPending
   useBackToClose(open, () => onOpenChange(false))
 
   const changeOpen = (next: boolean) => {
@@ -84,6 +88,11 @@ export function QuickAddSheet({ open, onOpenChange }: Props) {
       createItem.mutate(
         { data: { name, status, in_inbox: true } },
         { onSuccess: (item) => added(`/items/${item.id}`) },
+      )
+    } else if (kind === 'task') {
+      createTask.mutate(
+        { data: { title: name, in_inbox: true } },
+        { onSuccess: (task) => added(`/tasks/${task.id}`) },
       )
     } else if (kind === 'note') {
       createNote.mutate(

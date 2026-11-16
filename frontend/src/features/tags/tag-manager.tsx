@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { plural } from '@/lib/format'
 
 const usage = (tag: TagOut) =>
-  `${plural(tag.item_count, 'item')} and ${plural(tag.project_count, 'project')}`
+  `${plural(tag.item_count, 'item')}, ${plural(tag.project_count, 'project')} and ${plural(tag.task_count, 'task')}`
 
 export function TagManager() {
   const { data: tags = [], isPending } = useListTags()
@@ -20,7 +20,7 @@ export function TagManager() {
     <section>
       <h2 className="text-lg font-semibold">Tags</h2>
       <p className="mt-1 mb-4 text-sm text-muted-foreground">
-        Shared by items and projects. Click a name to rename it.
+        Shared by items, projects and tasks. Click a name to rename it.
       </p>
       {tags.length > 0 ? (
         <ul className="mb-4">
@@ -38,7 +38,7 @@ export function TagManager() {
               <ConfirmDialog
                 title={`Delete the tag ${tag.name}?`}
                 description={
-                  tag.item_count + tag.project_count > 0
+                  tag.item_count + tag.project_count + tag.task_count > 0
                     ? `It will be removed from ${usage(tag)}.`
                     : undefined
                 }

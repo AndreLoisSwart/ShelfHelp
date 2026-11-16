@@ -14,8 +14,6 @@ export interface ProjectCreate {
   name: string;
   status?: ProjectStatus;
   description_md?: string;
-  /** @maxLength 500 */
-  next_step?: string;
   tag_ids?: number[];
   in_inbox?: boolean;
 }

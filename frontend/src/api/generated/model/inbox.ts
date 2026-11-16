@@ -7,9 +7,11 @@
 import type { ItemSummary } from './itemSummary';
 import type { NoteSummary } from './noteSummary';
 import type { ProjectSummary } from './projectSummary';
+import type { TaskSummary } from './taskSummary';
 
 export interface Inbox {
   items: ItemSummary[];
   projects: ProjectSummary[];
+  tasks: TaskSummary[];
   notes: NoteSummary[];
 }

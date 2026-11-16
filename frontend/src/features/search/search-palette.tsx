@@ -1,5 +1,5 @@
 import { keepPreviousData } from '@tanstack/react-query'
-import { FolderKanban, Inbox, NotebookPen, Package, Plus } from 'lucide-react'
+import { FolderKanban, Inbox, ListTodo, NotebookPen, Package, Plus } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import { useSearch } from '@/api/generated/search/search'
@@ -13,7 +13,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import { home, items, notes, projects, settings, shopping } from '@/components/layout/nav'
+import { home, items, notes, projects, settings, shopping, tasks } from '@/components/layout/nav'
 import { useQuickAdd } from '@/features/inbox/use-quick-add'
 import type { Status } from '@/lib/statuses'
 import { useBackToClose } from '@/lib/use-back-to-close'
@@ -22,6 +22,7 @@ import { splitMarks } from './marks'
 const PAGES = [
   home,
   projects,
+  tasks,
   items,
   notes,
   shopping,
@@ -42,7 +43,7 @@ function Highlighted({ text }: { text: string }) {
   )
 }
 
-type Hit = { id: number; title: string; snippet: string; status?: Status }
+type Hit = { id: number; title: string; snippet: string; status?: Status; done?: boolean }
 
 type HitItemProps = { value: string; hit: Hit; icon: ReactNode; onSelect: () => void }
 
@@ -61,6 +62,7 @@ function HitItem({ value, hit, icon, onSelect }: HitItemProps) {
         )}
       </div>
       {hit.status && <StatusBadge status={hit.status} />}
+      {hit.done && <span className="shrink-0 text-xs text-muted-foreground">Done</span>}
     </CommandItem>
   )
 }
@@ -76,7 +78,7 @@ function useDebounced(value: string, ms: number) {
 
 type Props = { open: boolean; onOpenChange: (open: boolean) => void }
 
-/** Search across projects, items and notes. With nothing typed, jumps to pages. */
+/** Search across projects, tasks, items and notes. With nothing typed, jumps to pages. */
 export function SearchPalette({ open, onOpenChange }: Props) {
   const navigate = useNavigate()
   const quickAdd = useQuickAdd()
@@ -101,6 +103,7 @@ export function SearchPalette({ open, onOpenChange }: Props) {
   const groups = results
     ? [
         { key: 'projects', heading: 'Projects', hits: results.projects, icon: FolderKanban },
+        { key: 'tasks', heading: 'Tasks', hits: results.tasks, icon: ListTodo },
         { key: 'items', heading: 'Items', hits: results.items, icon: Package },
         { key: 'notes', heading: 'Notes', hits: results.notes, icon: NotebookPen },
       ]
@@ -111,7 +114,7 @@ export function SearchPalette({ open, onOpenChange }: Props) {
       open={open}
       onOpenChange={changeOpen}
       title="Search"
-      description="Search projects, items and notes"
+      description="Search projects, tasks, items and notes"
       className="max-md:top-4 sm:max-w-lg"
     >
       {/* Results come from the server already ranked, so cmdk mustn't filter or sort. */}
@@ -119,7 +122,7 @@ export function SearchPalette({ open, onOpenChange }: Props) {
         <CommandInput
           value={query}
           onValueChange={setQuery}
-          placeholder="Search projects, items and notes…"
+          placeholder="Search projects, tasks, items and notes…"
           maxLength={200}
         />
         <CommandList className="max-h-[min(28rem,60svh)]">

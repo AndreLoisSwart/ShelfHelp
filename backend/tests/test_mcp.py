@@ -128,7 +128,7 @@ def test_regenerating_retires_the_old_token(api, lan):
 def test_tool_list(mcp):
     res = mcp.lan.post("/mcp", headers=mcp.headers, json=rpc("tools/list"))
     tools = {t["name"]: t for t in res.json()["result"]["tools"]}
-    assert len(tools) == 27
+    assert len(tools) == 33
     assert not [name for name in tools if "delete" in name or "remove" in name]
     assert tools["search"]["annotations"]["readOnlyHint"] is True
     assert tools["create_item"]["annotations"]["destructiveHint"] is False
@@ -147,7 +147,8 @@ def test_records_skip_the_inbox_unless_asked(mcp, api):
 
 
 def test_project_flow(mcp):
-    project = mcp("create_project", name="Bird box", status="active", next_step="Cut the roof")
+    project = mcp("create_project", name="Bird box", status="active")
+    cut = mcp("create_task", title="Cut the roof", project_id=project["id"])
     glue = mcp("create_item", name="Wood glue", status="need")
     mcp("link_item_to_project", project_id=project["id"], item_id=glue["id"], note="small bottle")
     mcp("create_note", title="Plan", body_md="- [ ] measure", project_id=project["id"])
@@ -159,10 +160,19 @@ def test_project_flow(mcp):
     assert [n["title"] for n in context["notes"]] == ["Plan"]
     assert [link["url"] for link in context["links"]] == ["https://example.com/plans"]
 
-    updated = mcp("update_project", project_id=project["id"], next_step="Glue up")
-    assert updated["next_step"] == "Glue up"
+    glue_up = mcp("create_task", title="Glue up", project_id=project["id"], item_ids=[glue["id"]])
+    assert glue_up["readiness"] == {"ready": 0, "total": 1}
+    assert [t["title"] for t in context["tasks"]] == ["Cut the roof"]
+    assert context["project"]["next_task"]["title"] == "Cut the roof"
+    mcp("reorder_tasks", project_id=project["id"], task_ids=[glue_up["id"]])
+    reordered = mcp("get_project", project_id=project["id"])["project"]
+    assert reordered["next_task"]["id"] == glue_up["id"]
+    assert mcp("complete_task", task_id=glue_up["id"])["done_at"] is not None
+    assert mcp("list_tasks", project_id=project["id"], done=False)[0]["id"] == cut["id"]
+
+    updated = mcp("update_project", project_id=project["id"], name="Bird house")
     assert updated["status"] == "active"  # untouched
-    assert mcp("get_dashboard")["active"][0]["name"] == "Bird box"
+    assert mcp("get_dashboard")["active"][0]["name"] == "Bird house"
     assert mcp("get_shopping_list")[0]["items"][0]["name"] == "Wood glue"
 
     mcp("unlink_item_from_project", project_id=project["id"], item_id=glue["id"])

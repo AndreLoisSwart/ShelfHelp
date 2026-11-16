@@ -38,7 +38,7 @@ def test_done_clears_the_flag(api):
     note = create(api, "notes", title="Idea", in_inbox=True)
     api.patch(f"/api/items/{item['id']}", json={"in_inbox": False})
     api.patch(f"/api/notes/{note['id']}", json={"in_inbox": False})
-    assert api.get("/api/inbox").json() == {"items": [], "projects": [], "notes": []}
+    assert api.get("/api/inbox").json() == {"items": [], "projects": [], "tasks": [], "notes": []}
     assert api.get("/api/inbox/count").json() == {"count": 0}
 
 

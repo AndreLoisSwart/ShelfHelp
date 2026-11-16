@@ -130,6 +130,7 @@ Recognising products without a barcode (from a photo) would need a cloud vision 
 - **Custom shopping lists:** in addition to the generated ones.
 - **Item categories:** a category tree, if tags turn out not to be enough.
 - **Photos:** progress photos on projects, photos of items.
-- **Checkbox roll-up:** show open note checkboxes across projects as a task view.
+- **Checkbox roll-up:** show open note checkboxes across projects. Mostly covered by tasks (v1.3.0); only worth doing if checklists in notes keep being used for to-dos.
+- **Task extras:** due dates, subtasks, a standalone-tasks section on Home, and listing the tasks an item is linked to on Item details.
 - **Activity log:** a history per project.
 - **Export:** markdown or JSON export of all data.

@@ -6,9 +6,16 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 
 **Projects**
 - [x] CRUD with status (someday → planned → active → paused → done/abandoned)
-- [x] Next step (editable inline) and last touched
+- [x] Next step (the first open task, v1.3.0) and last touched
 - [x] List and board views, board with drag-and-drop between statuses
 - [x] Tags
+
+**Tasks** (added after V1, v1.3.0)
+- [x] Tasks with a title and optional description, in a project or standalone
+- [x] Ordered per project; the first open task is the project's next step
+- [x] Tick off and reopen; done tasks stay on the project, collapsed
+- [x] Linked items (with readiness) and tags
+- [x] Tasks page, project Tasks tab, quick-add, inbox, search and MCP tools
 
 **Items**
 - [x] CRUD with status (have / low / out / need)
@@ -41,7 +48,7 @@ Details for each area live in `data-model.md` and `pages.md`. This file defines 
 - [x] Project readiness
 - [x] Shopping page grouped by top-level location, with "Got it"
 - [x] Shopping filter by shop, across zones (v1.2.0)
-- [x] Dashboard: active projects and next steps, running low, stale projects
+- [x] Dashboard: active projects and next steps (tick off or add inline), running low, stale projects
 
 **Platform**
 - [x] HA add-on packaging, Ingress-compatible, data in `/data`
@@ -75,6 +82,8 @@ Packaging and Ingress come first because they are the riskiest part. Proving the
 Decided: location tags are copied to items (on create and on move, add only), including the tags of parent locations. Item tags are suggested to projects, not added. Parts get their parent item's tags (2026-11-06).
 
 Decided: shops are their own list, many per item, managed in Settings. Filtering the shopping list by a shop spans all zones and keeps items with no shop set in their own section (2026-11-06). Prices and per-shop product links are left out.
+
+Decided: tasks replace the free-text next step (2026-11-16). A task is a title, an optional description, linked items and tags, in a project or standalone, done or not. The next step is the project's first open task, computed, so it can't go out of date. Existing next steps became each project's first task. Done tasks are kept and shown collapsed. Due dates, subtasks and an in-progress state are left out.
 
 Decided: stale projects default to 3 weeks, changeable in Settings (step 9).
 

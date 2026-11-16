@@ -6,25 +6,27 @@ from app.modules.items.models import item_tags
 from app.modules.projects.models import project_tags
 from app.modules.tags.models import Tag
 from app.modules.tags.schemas import TagCreate, TagOut, TagUpdate
+from app.modules.tasks.models import task_tags
 
-Counts = tuple[dict[int, int], dict[int, int]]
+Counts = tuple[dict[int, int], dict[int, int], dict[int, int]]
 
 
 def _counts(session: Session) -> Counts:
-    """How many items and projects use each tag."""
+    """How many items, projects and tasks use each tag."""
     return tuple(
         dict(session.execute(select(table.c.tag_id, func.count()).group_by(table.c.tag_id)).all())
-        for table in (item_tags, project_tags)
+        for table in (item_tags, project_tags, task_tags)
     )
 
 
 def _to_out(tag: Tag, counts: Counts) -> TagOut:
-    items, projects = counts
+    items, projects, tasks = counts
     return TagOut(
         id=tag.id,
         name=tag.name,
         item_count=items.get(tag.id, 0),
         project_count=projects.get(tag.id, 0),
+        task_count=tasks.get(tag.id, 0),
     )
 
 
@@ -69,6 +71,6 @@ def update_tag(session: Session, tag_id: int, data: TagUpdate) -> TagOut:
 
 
 def delete_tag(session: Session, tag_id: int) -> None:
-    # Links to items and projects go with it (ON DELETE CASCADE).
+    # Links to items, projects and tasks go with it (ON DELETE CASCADE).
     session.delete(get_tag(session, tag_id))
     session.commit()

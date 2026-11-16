@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useQuickAdd } from '@/features/inbox/use-quick-add'
 import { SearchPalette } from '@/features/search/search-palette'
-import { notes, settings } from './nav'
+import { notes, settings, tasks } from './nav'
 
 function InboxLink() {
   const { data } = useGetInboxCount()
@@ -89,7 +89,7 @@ export function TopBar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {[notes, settings].map((item) => (
+            {[tasks, notes, settings].map((item) => (
               <DropdownMenuItem key={item.to} asChild>
                 <Link to={item.to}>
                   <item.icon />

@@ -26,10 +26,10 @@ export function ProjectCard({ project, showStatus = true, className }: Props) {
         <h3 className="leading-snug font-medium">{project.name}</h3>
         {showStatus && <StatusBadge status={project.status} />}
       </div>
-      {project.next_step ? (
+      {project.next_task ? (
         <p className="mt-1 text-sm">
           <span className="text-muted-foreground">Next: </span>
-          {project.next_step}
+          {project.next_task.title}
         </p>
       ) : (
         <p className="mt-1 text-sm text-muted-foreground italic">No next step</p>
